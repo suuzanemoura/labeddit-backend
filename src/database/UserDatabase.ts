@@ -1,44 +1,45 @@
+import { User, UserDB } from "../models/User";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class UserDatabase extends BaseDatabase{
     public static TABLE_USERS = "users"
 
-    public async getUsers(q: string | undefined): Promise<any | undefined> {
+    public async getUsers(q: string | undefined): Promise<UserDB[] | undefined> {
         if (q) {
-            const usersDB:any[] = await BaseDatabase
+            const usersDB:UserDB[] = await BaseDatabase
                 .connection(UserDatabase.TABLE_USERS)
                 .where("name", "LIKE", `%${q}%`)
-            return usersDB as any []
+            return usersDB as UserDB[]
         } else {
-            const usersDB: any[] = await BaseDatabase
+            const usersDB: UserDB[] = await BaseDatabase
                 .connection(UserDatabase.TABLE_USERS)
-            return usersDB as any[]
+            return usersDB as UserDB[]
         }
     }
 
-    public async getUserByEmail(email: string): Promise<any | undefined> {
-        const [result]: any[] = await BaseDatabase
+    public async getUserByEmail(email: string): Promise<UserDB | undefined> {
+        const [result]:UserDB[] = await BaseDatabase
           .connection(UserDatabase.TABLE_USERS)
           .where({email: email})
 
-        return result as any[]
+        return result as UserDB
     }
 
-    public async getUserById (id: string): Promise<any | undefined> {
-        const [result]: any[] = await BaseDatabase
+    public async getUserById (id: string): Promise<UserDB | undefined> {
+        const [result]: UserDB[] = await BaseDatabase
           .connection(UserDatabase.TABLE_USERS)
           .where({id: id})
 
-        return result as any[]
+        return result as UserDB
     }
 
-    public async insertUser(newUserDB: any): Promise<void> {
+    public async insertUser(newUserDB: UserDB): Promise<void> {
         await BaseDatabase
           .connection(UserDatabase.TABLE_USERS)
           .insert(newUserDB)
     }
 
-    public async editUserById (id: string, userDB: any): Promise<void> {
+    public async editUserById (id: string, userDB: UserDB): Promise<void> {
         await BaseDatabase
         .connection(UserDatabase.TABLE_USERS)
         .update(userDB)

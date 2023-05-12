@@ -3,7 +3,7 @@
 CREATE TABLE
     users (
         id TEXT PRIMARY KEY UNIQUE NOT NULL,
-        name TEXT NOT NULL,
+        username TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         role TEXT DEFAULT('NORMAL') NOT NULL,
