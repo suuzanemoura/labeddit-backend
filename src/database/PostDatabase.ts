@@ -101,11 +101,11 @@ export class PostDatabase extends BaseDatabase{
           .insert(newPostDB)
     }
 
-    public async updatePostById (id: string, postDB: PostDB): Promise<void> {
+    public async updatePostById (postDB: PostDB): Promise<void> {
         await BaseDatabase
         .connection(PostDatabase.TABLE_POSTS)
         .update(postDB)
-        .where({id: id})
+        .where({id: postDB.id})
     }
 
     public async deleteUserById (id: string): Promise<void> {
