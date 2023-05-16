@@ -6,7 +6,7 @@ import { BaseError } from "../errors/BaseError"
 import { EditCommentByIdInputDTO, EditCommentByIdOutputDTO, EditCommentByIdSchema } from "../dtos/Comment/editComment.dto"
 import { DeleteCommentByIdInputDTO, DeleteCommentByIdOutputDTO, DeleteCommentByIdSchema } from "../dtos/Comment/deleteCommentById.dto"
 
-export class UserController{
+export class CommentController{
     constructor(
         private commentBusiness: CommentBusiness
     ){}
