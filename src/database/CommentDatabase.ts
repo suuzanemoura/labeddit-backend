@@ -27,20 +27,30 @@ export class CommentDatabase extends BaseDatabase{
         
     }
 
+    public async getCommentsById(id: string): Promise<CommentDB>{
+
+        const [result]: CommentDB[] = await BaseDatabase
+            .connection(CommentDatabase.TABLE_COMMENTS)
+            .where({id: id})
+
+        return result as CommentDB
+        
+    }
+
     public async insertComment(newCommentDB: CommentDB): Promise<void> {
         await BaseDatabase
           .connection(CommentDatabase.TABLE_COMMENTS)
           .insert(newCommentDB)
     }
 
-    public async updateCommentById (id: string, commentDB: CommentDB): Promise<void> {
+    public async updateCommentById (commentDB: CommentDB): Promise<void> {
         await BaseDatabase
         .connection(CommentDatabase.TABLE_COMMENTS)
         .update(commentDB)
-        .where({id: id})
+        .where({id: commentDB.id})
     }
 
-    public async deleteUserById (id: string): Promise<void> {
+    public async deleteCommentById (id: string): Promise<void> {
         await BaseDatabase
         .connection(CommentDatabase.TABLE_COMMENTS)
         .del().where({id: id})
