@@ -192,4 +192,21 @@ export class Post {
             }
         }
     }
+
+    public toBusinessModelWithComments(): PostWithCommentsModel {
+        return {
+            id: this.id,
+            content: this.content,
+            comments: this.comments,
+            likes: this.likes,
+            dislikes: this.dislikes,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+            creator: {
+                id: this.creatorId,
+                username: this.creatorUsername
+            },
+            commentsPost: this.commentsPost
+        }
+    }
 }
