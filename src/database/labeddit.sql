@@ -19,7 +19,7 @@ CREATE TABLE
         likes INTEGER DEFAULT(0) NOT NULL,
         dislikes INTEGER DEFAULT(0) NOT NULL,
         created_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
-        upload_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
+        updated_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
         FOREIGN KEY (creator_id) REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE
     );
 

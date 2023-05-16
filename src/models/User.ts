@@ -60,8 +60,8 @@ export class User {
         return this.createdAt
     }
 
-    public set NAME(newName: string) {
-        this.username = newName;
+    public set USERNAME(newUsername: string) {
+        this.username = newUsername;
     }
 
     public set EMAIL(newEmail: string) {

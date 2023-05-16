@@ -172,7 +172,7 @@ export class UserBusiness {
       hashedPassword = await this.hashManager.hash(password)
     }
 
-    user.NAME = username || userDB.username
+    user.USERNAME = username || userDB.username
     user.EMAIL = email || userDB.email
     user.PASSWORD = hashedPassword || userDB.password
 

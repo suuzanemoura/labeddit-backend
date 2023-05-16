@@ -22,7 +22,7 @@ export class PostDatabase extends BaseDatabase{
                 `${PostDatabase.TABLE_POSTS}.created_at`,
                 `${PostDatabase.TABLE_POSTS}.updated_at`,
                 `${PostDatabase.TABLE_POSTS}.creator_id`,
-                `${UserDatabase.TABLE_USERS}.name AS creator_name`
+                `${UserDatabase.TABLE_USERS}.username AS creator_username`
             )
             .join(`${UserDatabase.TABLE_USERS}`, `${PostDatabase.TABLE_POSTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
 
@@ -40,7 +40,7 @@ export class PostDatabase extends BaseDatabase{
                  `${PostDatabase.TABLE_POSTS}.created_at`,
                  `${PostDatabase.TABLE_POSTS}.updated_at`,
                  `${PostDatabase.TABLE_POSTS}.creator_id`,
-                 `${UserDatabase.TABLE_USERS}.name AS creator_name`
+                 `${UserDatabase.TABLE_USERS}.username AS creator_username`
             )
             .join(`${UserDatabase.TABLE_USERS}`, `${PostDatabase.TABLE_POSTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
 
@@ -70,7 +70,7 @@ export class PostDatabase extends BaseDatabase{
                 `${PostDatabase.TABLE_POSTS}.created_at`,
                 `${PostDatabase.TABLE_POSTS}.updated_at`,
                 `${PostDatabase.TABLE_POSTS}.creator_id`,
-                `${UserDatabase.TABLE_USERS}.name AS creator_name`
+                `${UserDatabase.TABLE_USERS}.username AS creator_username`
             )
             .join(`${UserDatabase.TABLE_USERS}`, `${PostDatabase.TABLE_POSTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
             .where({[`${PostDatabase.TABLE_POSTS}.id`]: id})
@@ -85,7 +85,7 @@ export class PostDatabase extends BaseDatabase{
             `${PostDatabase.TABLE_COMMENTS}.created_at`,
             `${PostDatabase.TABLE_COMMENTS}.updated_at`,
             `${PostDatabase.TABLE_COMMENTS}.creator_id`,
-            `${UserDatabase.TABLE_USERS}.name AS creator_name`
+            `${UserDatabase.TABLE_USERS}.username AS creator_username`
         )
         .join(`${UserDatabase.TABLE_USERS}`, `${PostDatabase.TABLE_COMMENTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
         .where({[`${PostDatabase.TABLE_COMMENTS}.post_id`]: id})

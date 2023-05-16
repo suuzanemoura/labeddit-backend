@@ -88,7 +88,7 @@ export class UserController{
     try {
       const input:EditUserByIdInputDTO = EditUserByIdSchema.parse({
         id: req.params.id,
-        name: req.body.name,
+        username: req.body.username,
         email: req.body.email,
         password: req.body.password,
         token: req.headers.authorization
