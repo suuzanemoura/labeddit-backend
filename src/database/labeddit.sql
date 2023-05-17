@@ -32,7 +32,7 @@ CREATE TABLE
         likes INTEGER DEFAULT(0) NOT NULL,
         dislikes INTEGER DEFAULT(0) NOT NULL,
         created_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
-        upload_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
+        updated_at TEXT DEFAULT (DATETIME('now', 'localtime')) NOT NULL,
         FOREIGN KEY (creator_id) REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
         FOREIGN KEY(post_id) REFERENCES posts(id) ON UPDATE CASCADE ON DELETE CASCADE
     );
@@ -60,6 +60,8 @@ CREATE TABLE
 SELECT * FROM users;
 
 SELECT * FROM posts;
+
+SELECT * FROM comments_posts;
 
 SELECT * FROM likes_dislikes_posts;
 

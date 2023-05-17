@@ -37,10 +37,8 @@ export interface PostWithCommentsDB{
     dislikes: number,
     created_at: string,
     updated_at: string,
-    creator: {
-        id: string,
-        username: string,
-    },
+    creator_id: string,
+    creator_username: string,
     comments_post: CommentWithCreatorDB[]
 }
 
@@ -80,8 +78,7 @@ export class Post {
       private createdAt: string,
       private updatedAt: string,
       private creatorId: string,
-      private creatorUsername: string,
-      private commentsPost: CommentModel[]
+      private creatorUsername: string
     ) {}
 
     public get ID(): string {
@@ -119,10 +116,6 @@ export class Post {
     public get CREATOR_USERNAME(): string {
         return this.creatorUsername;
     }
-
-    public get COMMENTS_POST(): CommentModel[] {
-        return this.commentsPost;
-    }
     
     public set CONTENT(newContent: string) {
         this.content = newContent;
@@ -144,8 +137,12 @@ export class Post {
         this.updatedAt = newUpdatedAt;
     }
 
-    public set COMMENTS_POST(newComments: CommentModel[]) {
-        this.commentsPost = newComments;
+    public addComment():void {
+        this.comments += 1
+    }
+
+    public removeComment():void {
+        this.comments -= 1
     }
 
     public addLike():void {
@@ -193,7 +190,7 @@ export class Post {
         }
     }
 
-    public toBusinessModelWithComments(): PostWithCommentsModel {
+    public toBusinessModelWithComments(commentsPost:CommentModel[]): PostWithCommentsModel {
         return {
             id: this.id,
             content: this.content,
@@ -206,7 +203,7 @@ export class Post {
                 id: this.creatorId,
                 username: this.creatorUsername
             },
-            commentsPost: this.commentsPost
+            commentsPost: commentsPost
         }
     }
 }
