@@ -1,21 +1,24 @@
+import { CommentDatabase } from "../database/CommentDatabase"
 import { PostDatabase } from "../database/PostDatabase"
 import { CreatePostInputDTO, CreatePostOutputDTO } from "../dtos/Post/createPost.dto"
 import { DeletePostByIdInputDTO, DeletePostByIdOutputDTO } from "../dtos/Post/deletePostById.dto"
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO } from "../dtos/Post/editPostById.dto"
 import { GetPostWithCommentByIdInputDTO, GetPostWithCommentByIdOutputDTO } from "../dtos/Post/getPostWithCommentsById.dto"
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../dtos/Post/getPosts.dto"
+import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO } from "../dtos/Post/likeOrDislikePost.dto"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
-import { Comment, CommentModel } from "../models/Comment"
-import { Post, PostDB, PostModel, PostWithCommentsDB, PostWithCommentsModel, PostWithCreatorDB } from "../models/Post"
+import { Comment, CommentDB, CommentModel, CommentWithCreatorDB } from "../models/Comment"
+import { LikeDislikePostDB, POST_LIKE, Post, PostDB, PostModel, PostWithCommentsDB, PostWithCommentsModel, PostWithCreatorDB } from "../models/Post"
 import { TokenPayload, USER_ROLES } from "../models/User"
 import { IdGenerator } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
 
 export class PostBusiness {
     constructor (
-    private postsDatabase: PostDatabase,
+    private postDatabase: PostDatabase,
+    private commentDatabase: CommentDatabase,
     private idGenerator: IdGenerator,
     private tokenManager: TokenManager
     ) {}
@@ -41,12 +44,11 @@ export class PostBusiness {
             new Date().toISOString(),
             new Date().toISOString(),
             payload.id,
-            payload.username,
-            []
+            payload.username
         )
 
         const newPostDB:PostDB = newPost.toDBModel()
-        await this.postsDatabase.insertPost(newPostDB)
+        await this.postDatabase.insertPost(newPostDB)
 
         const output: CreatePostOutputDTO = {
             message: "Post criado com sucesso!"
@@ -65,7 +67,7 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const postsDB:PostWithCreatorDB[] = await this.postsDatabase.getPostsWithCreator(query)
+        const postsDB:PostWithCreatorDB[] = await this.postDatabase.getPostsWithCreator(query)
         
         const posts:PostModel[] = postsDB.map((postDB) => { 
 
@@ -78,8 +80,7 @@ export class PostBusiness {
                 postDB.created_at,
                 postDB.updated_at,
                 postDB.creator_id,
-                postDB.creator_username,
-                []
+                postDB.creator_username
             )
 
             return post.toBusinessModel()
@@ -104,10 +105,10 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const postWithCommentsDB:PostWithCommentsDB = await this.postsDatabase.getPostWithCreatorAndCommentsById(postId)
+        const postWithCommentsDB:PostWithCommentsDB = await this.postDatabase.getPostWithCreatorAndCommentsById(postId)
 
         if(!postWithCommentsDB){
-            throw new NotFoundError("Nenhum post foi encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
         }
 
         const commentsInPost:CommentModel[] = postWithCommentsDB.comments_post.map((commentDB) => { 
@@ -136,12 +137,11 @@ export class PostBusiness {
             postWithCommentsDB.dislikes,
             postWithCommentsDB.created_at,
             postWithCommentsDB.updated_at,
-            postWithCommentsDB.creator.id,
-            postWithCommentsDB.creator.username,
-            commentsInPost
+            postWithCommentsDB.creator_id,
+            postWithCommentsDB.creator_username
         )
         
-        const postWithCommentsModel:PostWithCommentsModel = post.toBusinessModelWithComments()
+        const postWithCommentsModel:PostWithCommentsModel = post.toBusinessModelWithComments(commentsInPost)
 
         const output: GetPostWithCommentByIdOutputDTO = postWithCommentsModel
         return output as GetPostWithCommentByIdOutputDTO
@@ -156,7 +156,7 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const postDB: PostDB | undefined = await this.postsDatabase.getPostById(postId)
+        const postDB: PostDB | undefined = await this.postDatabase.getPostById(postId)
     
         if (!postDB) {
             throw new NotFoundError("Post não encontrado.")
@@ -177,15 +177,14 @@ export class PostBusiness {
             postDB.created_at,
             postDB.updated_at,
             payload.id,
-            payload.username,
-            []
+            payload.username
         )
 
         post.CONTENT = content
         post.UPDATED_AT = new Date().toISOString()
 
         const updatedPostDB:PostDB = post.toDBModel()
-        await this.postsDatabase.updatePostById(updatedPostDB)
+        await this.postDatabase.updatePostById(updatedPostDB)
     
         const output:EditPostByIdOutputDTO = {
             message: "Post atualizado com sucesso!",
@@ -204,7 +203,7 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const postDB: PostDB | undefined = await this.postsDatabase.getPostById(postId)
+        const postDB: PostDB | undefined = await this.postDatabase.getPostById(postId)
         
         if (!postDB) {
             throw new NotFoundError("Post não encontrado.")
@@ -216,12 +215,75 @@ export class PostBusiness {
             }
         }
         
-        await this.postsDatabase.deleteUserById(postId)
+        await this.postDatabase.deleteUserById(postId)
     
         const output:DeletePostByIdOutputDTO = {
             message: "Post excluído com sucesso!",
         }
 
         return output as DeletePostByIdOutputDTO
+    }
+
+    public likeOrDislikePost = async (input: LikeOrDislikePostInputDTO): Promise<LikeOrDislikePostOutputDTO> => {
+
+        const { postId, token, like } = input
+
+        const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+
+        if(!payload) {
+            throw new UnauthorizedError()
+        }
+
+        const postDB:PostDB| undefined = await this.postDatabase.getPostById(postId)
+
+        if (!postDB){
+            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+        }
+
+        if (payload.id === postDB.creator_id){
+            throw new ForbiddenError("Não é possível interagir com seu próprio post.")
+        }
+
+        const post = new Post(
+            postDB.id,
+            postDB.content,
+            postDB.comments,
+            postDB.likes,
+            postDB.dislikes,
+            postDB.created_at,
+            postDB.updated_at,
+            postDB.creator_id,
+            payload.username
+        )
+
+        const likeSQLite: number = like ? 1 : 0
+
+        const likeDislikePostDB:LikeDislikePostDB = {
+            user_id: payload.id,
+            post_id: postId,
+            like: likeSQLite
+        }
+
+        const likeDislikeExists:POST_LIKE | undefined = await this.postDatabase.getLikeDislikeFromPostById(likeDislikePostDB)
+
+        likeDislikeExists === POST_LIKE.ALREADY_LIKED && like ? 
+        (await this.postDatabase.removeLikeDislikeFromPostById(likeDislikePostDB), post.removeLike())
+        : likeDislikeExists === POST_LIKE.ALREADY_LIKED && !like ?
+        (await this.postDatabase.updateLikeDislikeFromPostById(likeDislikePostDB), post.removeLike(), post.addDislike())
+        : likeDislikeExists === POST_LIKE.ALREADY_DISLIKED && !like ?
+        (await this.postDatabase.removeLikeDislikeFromPostById(likeDislikePostDB), post.removeDislike())
+        : likeDislikeExists === POST_LIKE.ALREADY_DISLIKED && like ?
+        (await this.postDatabase.updateLikeDislikeFromPostById(likeDislikePostDB), post.removeDislike(), post.addLike())
+        : likeDislikeExists === undefined && like ?
+        (await this.postDatabase.insertLikeDislikeInPostById(likeDislikePostDB), post.addLike())
+        : (await this.postDatabase.insertLikeDislikeInPostById(likeDislikePostDB), post.addDislike())
+
+        const updatedPostDB:PostDB = post.toDBModel()
+        
+        await this.postDatabase.updatePostById(updatedPostDB)
+
+        const output: LikeOrDislikePostOutputDTO = undefined
+        return output as LikeOrDislikePostOutputDTO
+
     }
 }

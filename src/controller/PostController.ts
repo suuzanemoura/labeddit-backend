@@ -7,6 +7,7 @@ import { CreatePostInputDTO, CreatePostOutputDTO, CreatePostSchema } from "../dt
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO, EditPostByIdSchema } from "../dtos/Post/editPostById.dto"
 import { DeletePostByIdInputDTO, DeletePostByIdOutputDTO, DeletePostByIdSchema } from "../dtos/Post/deletePostById.dto"
 import { GetPostWithCommentByIdInputDTO, GetPostWithCommentByIdOutputDTO, GetPostWithCommentByIdSchema } from "../dtos/Post/getPostWithCommentsById.dto"
+import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO, LikeOrDislikePostSchema } from "../dtos/Post/likeOrDislikePost.dto"
 
 export class PostController{
   constructor(
@@ -124,6 +125,30 @@ export class PostController{
       })
 
       const output:DeletePostByIdOutputDTO = await this.postBusiness.deletePostById(input)
+      res.status(200).send(output)
+
+    } catch (error) {
+      console.log(error)
+
+      if (error instanceof ZodError) {
+        res.status(400).send(error.issues)
+      } else if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.status(500).send("Erro inesperado.")
+      }
+    }
+  }
+
+  public likeOrDislikePost = async (req: Request, res: Response):Promise<void> => {
+    try {
+      const input:LikeOrDislikePostInputDTO = LikeOrDislikePostSchema.parse({
+        postId: req.params.postId,
+        token: req.headers.authorization,
+        like: req.body.like
+      })
+
+      const output:LikeOrDislikePostOutputDTO = await this.postBusiness.likeOrDislikePost(input)
       res.status(200).send(output)
 
     } catch (error) {
