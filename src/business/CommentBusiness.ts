@@ -1,17 +1,18 @@
 import { CommentDatabase } from "../database/CommentDatabase";
 import { PostDatabase } from "../database/PostDatabase";
+import { IdGenerator } from "../services/IdGenerator";
+import { TokenManager } from "../services/TokenManager";
 import { CreateCommentInputDTO, CreateCommentOutputDTO } from "../dtos/Comment/createComment.dto";
 import { DeleteCommentByIdInputDTO, DeleteCommentByIdOutputDTO } from "../dtos/Comment/deleteCommentById.dto";
 import { EditCommentByIdInputDTO, EditCommentByIdOutputDTO } from "../dtos/Comment/editComment.dto";
 import { LikeOrDislikeCommentInputDTO, LikeOrDislikeCommentOutputDTO } from "../dtos/Comment/likeOrDislikeComment.dto";
-import { ForbiddenError } from "../errors/ForbiddenError";
-import { NotFoundError } from "../errors/NotFoundError";
-import { UnauthorizedError } from "../errors/UnauthorizedError";
 import { COMMENT_LIKE, Comment, CommentDB, CommentWithCreatorDB, LikeDislikeCommentDB } from "../models/Comment";
 import { Post, PostDB, PostWithCreatorDB } from "../models/Post";
 import { TokenPayload, USER_ROLES } from "../models/User";
-import { IdGenerator } from "../services/IdGenerator";
-import { TokenManager } from "../services/TokenManager";
+import { ForbiddenError } from "../errors/ForbiddenError";
+import { NotFoundError } from "../errors/NotFoundError";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
+
 
 export class CommentBusiness {
     constructor (
@@ -94,9 +95,13 @@ export class CommentBusiness {
 
         const commentDB: CommentDB | undefined = await this.commentDatabase.getCommentById(commentId)
 
+        if(!commentDB){
+            throw new NotFoundError("Comentário não encontrado. Verifique a id e tente novamente.")
+        }
+
         if (payload.role !== USER_ROLES.ADMIN){
             if (payload.id !== commentDB.creator_id) {
-              throw new ForbiddenError("Somente o criador do comentário pode editá-lo. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
+              throw new ForbiddenError("Somente o criador do comentário ou um ADMIN podem editá-lo. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
             }
         }
     
@@ -150,7 +155,7 @@ export class CommentBusiness {
         if (payload.role !== USER_ROLES.ADMIN){
             if(payload.id !== postWithCreatorDB.creator_id){
                 if (payload.id !== commentDB.creator_id) {
-                    throw new ForbiddenError("Somente o autor do comentário, o autor do post ou um ADMIN pode excluir o comentário. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
+                    throw new ForbiddenError("Somente o autor do comentário, o autor do post ou um ADMIN podem excluir o comentário. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
                 }
             }
         }
@@ -180,7 +185,7 @@ export class CommentBusiness {
         return output as DeleteCommentByIdOutputDTO
       }
 
-      public likeOrDislikeComment = async (input: LikeOrDislikeCommentInputDTO): Promise<LikeOrDislikeCommentOutputDTO> => {
+    public likeOrDislikeComment = async (input: LikeOrDislikeCommentInputDTO): Promise<LikeOrDislikeCommentOutputDTO> => {
 
         const { postId, commentId, token, like } = input
 

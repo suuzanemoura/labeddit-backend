@@ -1,13 +1,13 @@
 import { z } from "zod"
 
-export const GetPostWithCommentByIdSchema = z.object({
+export const GetPostWithCommentsByIdSchema = z.object({
     postId: z.string().min(1),
     token: z.string().min(1)
 })
 
-export type GetPostWithCommentByIdInputDTO = z.infer<typeof GetPostWithCommentByIdSchema>
+export type GetPostWithCommentsByIdInputDTO = z.infer<typeof GetPostWithCommentsByIdSchema>
 
-export const GetPostWithCommentByIdSchemaOutput = z.object({
+export const GetPostWithCommentsByIdSchemaOutput = z.object({
     id: z.string(),
     content: z.string(),
     comments: z.number(),
@@ -35,4 +35,4 @@ export const GetPostWithCommentByIdSchemaOutput = z.object({
     )
 })
 
-export type GetPostWithCommentByIdOutputDTO = z.infer<typeof GetPostWithCommentByIdSchemaOutput>
+export type GetPostWithCommentsByIdOutputDTO = z.infer<typeof GetPostWithCommentsByIdSchemaOutput>

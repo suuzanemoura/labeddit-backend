@@ -1,23 +1,23 @@
-import { COMMENT_LIKE, CommentDB, CommentWithCreatorDB, LikeDislikeCommentDB } from "../models/Comment";
 import { BaseDatabase } from "./BaseDatabase";
 import { UserDatabase } from "./UserDatabase";
+import { COMMENT_LIKE, CommentDB, CommentWithCreatorDB, LikeDislikeCommentDB } from "../models/Comment";
 
 export class CommentDatabase extends BaseDatabase{
     public static TABLE_USERS = "users"
     public static TABLE_COMMENTS = "comments_posts"
     public static TABLE_LIKES_DISLIKES = "likes_dislikes_comments"
 
-    public async getCommentById(id: string): Promise<CommentDB>{
+    public async getCommentById(id: string): Promise<CommentDB | undefined>{
 
         const [result]: CommentDB[] = await BaseDatabase
             .connection(CommentDatabase.TABLE_COMMENTS)
             .where({id: id})
 
-        return result as CommentDB
+        return result as CommentDB | undefined
         
     }
 
-    public async getCommentWithCreatorById(id: string): Promise<CommentWithCreatorDB>{
+    public async getCommentWithCreatorById(id: string): Promise<CommentWithCreatorDB | undefined>{
 
         const [result]: CommentWithCreatorDB[] = await BaseDatabase
             .connection(CommentDatabase.TABLE_COMMENTS)
@@ -35,7 +35,7 @@ export class CommentDatabase extends BaseDatabase{
             .join(`${UserDatabase.TABLE_USERS}`, `${CommentDatabase.TABLE_COMMENTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
             .where({[`${CommentDatabase.TABLE_COMMENTS}.id`]: id})
 
-        return result as CommentWithCreatorDB
+        return result as CommentWithCreatorDB | undefined
         
     }
 
@@ -90,6 +90,17 @@ export class CommentDatabase extends BaseDatabase{
         })
 
         return result === undefined ?  undefined : result && result.like === 1 ? COMMENT_LIKE.ALREADY_LIKED : COMMENT_LIKE.ALREADY_DISLIKED
+    }
+
+    public async getLikeDislikeFromCommentByUserId (id: string):Promise<LikeDislikeCommentDB[]> {
+
+        const result: LikeDislikeCommentDB[] = await BaseDatabase
+        .connection(CommentDatabase.TABLE_LIKES_DISLIKES)
+        .where({
+            user_id: id
+        })
+
+        return result as LikeDislikeCommentDB[]
     }
 
     public insertLikeDislikeInCommentById = async (likeDislikeCommentDB: LikeDislikeCommentDB): Promise<void> => {

@@ -1,13 +1,14 @@
 import { Request, Response } from "express"
+import { ZodError } from "zod"
+import { BaseError } from "../errors/BaseError"
 import { PostBusiness } from "../business/PostBusiness"
 import { GetPostsInputDTO, GetPostsOutputDTO, GetPostsSchema } from "../dtos/Post/getPosts.dto"
-import { BaseError } from "../errors/BaseError"
-import { ZodError } from "zod"
 import { CreatePostInputDTO, CreatePostOutputDTO, CreatePostSchema } from "../dtos/Post/createPost.dto"
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO, EditPostByIdSchema } from "../dtos/Post/editPostById.dto"
 import { DeletePostByIdInputDTO, DeletePostByIdOutputDTO, DeletePostByIdSchema } from "../dtos/Post/deletePostById.dto"
-import { GetPostWithCommentByIdInputDTO, GetPostWithCommentByIdOutputDTO, GetPostWithCommentByIdSchema } from "../dtos/Post/getPostWithCommentsById.dto"
+import { GetPostWithCommentsByIdInputDTO, GetPostWithCommentsByIdOutputDTO, GetPostWithCommentsByIdSchema } from "../dtos/Post/getPostWithCommentsById.dto"
 import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO, LikeOrDislikePostSchema } from "../dtos/Post/likeOrDislikePost.dto"
+
 
 export class PostController{
   constructor(
@@ -28,7 +29,7 @@ export class PostController{
       console.log(error)
 
       if (error instanceof ZodError) {
-        res.status(400).send(error.issues)
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
       } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
@@ -51,12 +52,8 @@ export class PostController{
     } catch (error) {
       console.log(error)
 
-      if (req.statusCode === 200) {
-          res.status(500)
-      }
-
       if (error instanceof ZodError) {
-        res.status(400).send(error.issues)
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
       } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
@@ -68,23 +65,19 @@ export class PostController{
   public getPostWithCommentsById = async (req:Request, res: Response):Promise<void> => {
 
     try {
-      const input:GetPostWithCommentByIdInputDTO = GetPostWithCommentByIdSchema.parse({
+      const input:GetPostWithCommentsByIdInputDTO = GetPostWithCommentsByIdSchema.parse({
           postId: req.params.postId,
           token: req.headers.authorization
       })
 
-      const output:GetPostWithCommentByIdOutputDTO = await this.postBusiness.getPostWithCommentsById(input)
+      const output:GetPostWithCommentsByIdOutputDTO = await this.postBusiness.getPostWithCommentsById(input)
       res.status(200).send(output)
         
     } catch (error) {
       console.log(error)
 
-      if (req.statusCode === 200) {
-          res.status(500)
-      }
-
       if (error instanceof ZodError) {
-        res.status(400).send(error.issues)
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
       } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
@@ -108,7 +101,7 @@ export class PostController{
       console.log(error)
 
       if (error instanceof ZodError) {
-        res.status(400).send(error.issues)
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
       } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
@@ -131,7 +124,7 @@ export class PostController{
       console.log(error)
 
       if (error instanceof ZodError) {
-        res.status(400).send(error.issues)
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
       } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
@@ -155,7 +148,7 @@ export class PostController{
       console.log(error)
 
       if (error instanceof ZodError) {
-        res.status(400).send(error.issues)
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
       } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {

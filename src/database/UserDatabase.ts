@@ -1,5 +1,5 @@
-import { UserDB } from "../models/User";
 import { BaseDatabase } from "./BaseDatabase";
+import { UserDB } from "../models/User";
 
 export class UserDatabase extends BaseDatabase{
     public static TABLE_USERS = "users"
@@ -8,7 +8,7 @@ export class UserDatabase extends BaseDatabase{
         if (q) {
             const usersDB:UserDB[] = await BaseDatabase
                 .connection(UserDatabase.TABLE_USERS)
-                .where("name", "LIKE", `%${q}%`)
+                .where("username", "LIKE", `%${q}%`)
             return usersDB as UserDB[]
         } else {
             const usersDB: UserDB[] = await BaseDatabase
@@ -17,20 +17,20 @@ export class UserDatabase extends BaseDatabase{
         }
     }
 
-    public async getUserByEmail(email: string): Promise<UserDB> {
+    public async getUserByEmail(email: string): Promise<UserDB | undefined> {
         const [result]:UserDB[] = await BaseDatabase
           .connection(UserDatabase.TABLE_USERS)
           .where({email: email})
 
-        return result as UserDB
+        return result as UserDB | undefined
     }
 
-    public async getUserById (id: string): Promise<UserDB> {
+    public async getUserById (id: string): Promise<UserDB | undefined> {
         const [result]: UserDB[] = await BaseDatabase
           .connection(UserDatabase.TABLE_USERS)
           .where({id: id})
 
-        return result as UserDB
+        return result as UserDB | undefined
     }
 
     public async insertUser(newUserDB: UserDB): Promise<void> {

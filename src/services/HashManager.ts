@@ -9,7 +9,7 @@ export class HashManager {
         const salt = await bcrypt.genSalt(rounds)
         const hash = await bcrypt.hash(plaintext, salt)
 
-        return hash
+        return hash as string
     }
 
     public compare = async (plaintext: string, hash: string): Promise<boolean> => {

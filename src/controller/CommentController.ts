@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
-import { CommentBusiness } from "../business/CommentBusiness"
-import { CreateCommentInputDTO, CreateCommentOutputDTO, CreateCommentSchema } from "../dtos/Comment/createComment.dto"
 import { ZodError } from "zod"
 import { BaseError } from "../errors/BaseError"
+import { CommentBusiness } from "../business/CommentBusiness"
+import { CreateCommentInputDTO, CreateCommentOutputDTO, CreateCommentSchema } from "../dtos/Comment/createComment.dto"
 import { EditCommentByIdInputDTO, EditCommentByIdOutputDTO, EditCommentByIdSchema } from "../dtos/Comment/editComment.dto"
 import { DeleteCommentByIdInputDTO, DeleteCommentByIdOutputDTO, DeleteCommentByIdSchema } from "../dtos/Comment/deleteCommentById.dto"
 import { LikeOrDislikeCommentInputDTO, LikeOrDislikeCommentOutputDTO, LikeOrDislikeCommentSchema } from "../dtos/Comment/likeOrDislikeComment.dto"
@@ -100,7 +100,7 @@ export class CommentController{
         console.log(error)
   
         if (error instanceof ZodError) {
-          res.status(400).send(error.issues)
+          res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
         } else if (error instanceof BaseError) {
           res.status(error.statusCode).send(error.message)
         } else {
