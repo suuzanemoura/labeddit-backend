@@ -1,19 +1,20 @@
 import { CommentDatabase } from "../database/CommentDatabase"
 import { PostDatabase } from "../database/PostDatabase"
+import { IdGenerator } from "../services/IdGenerator"
+import { TokenManager } from "../services/TokenManager"
 import { CreatePostInputDTO, CreatePostOutputDTO } from "../dtos/Post/createPost.dto"
 import { DeletePostByIdInputDTO, DeletePostByIdOutputDTO } from "../dtos/Post/deletePostById.dto"
 import { EditPostByIdInputDTO, EditPostByIdOutputDTO } from "../dtos/Post/editPostById.dto"
-import { GetPostWithCommentByIdInputDTO, GetPostWithCommentByIdOutputDTO } from "../dtos/Post/getPostWithCommentsById.dto"
+import { GetPostWithCommentsByIdInputDTO, GetPostWithCommentsByIdOutputDTO } from "../dtos/Post/getPostWithCommentsById.dto"
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../dtos/Post/getPosts.dto"
 import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO } from "../dtos/Post/likeOrDislikePost.dto"
+import { Comment, CommentModel } from "../models/Comment"
+import { LikeDislikePostDB, POST_LIKE, Post, PostDB, PostModel, PostWithCommentsDB, PostWithCommentsModel, PostWithCreatorDB } from "../models/Post"
+import { TokenPayload, USER_ROLES } from "../models/User"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
-import { Comment, CommentDB, CommentModel, CommentWithCreatorDB } from "../models/Comment"
-import { LikeDislikePostDB, POST_LIKE, Post, PostDB, PostModel, PostWithCommentsDB, PostWithCommentsModel, PostWithCreatorDB } from "../models/Post"
-import { TokenPayload, USER_ROLES } from "../models/User"
-import { IdGenerator } from "../services/IdGenerator"
-import { TokenManager } from "../services/TokenManager"
+
 
 export class PostBusiness {
     constructor (
@@ -95,7 +96,7 @@ export class PostBusiness {
         return output as GetPostsOutputDTO
     }
 
-    public getPostWithCommentsById = async (input: GetPostWithCommentByIdInputDTO):Promise<GetPostWithCommentByIdOutputDTO> => {
+    public getPostWithCommentsById = async (input: GetPostWithCommentsByIdInputDTO):Promise<GetPostWithCommentsByIdOutputDTO> => {
 
         const { postId, token } = input
 
@@ -105,7 +106,7 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const postWithCommentsDB:PostWithCommentsDB = await this.postDatabase.getPostWithCreatorAndCommentsById(postId)
+        const postWithCommentsDB:PostWithCommentsDB | undefined = await this.postDatabase.getPostWithCreatorAndCommentsById(postId)
 
         if(!postWithCommentsDB){
             throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
@@ -143,8 +144,8 @@ export class PostBusiness {
         
         const postWithCommentsModel:PostWithCommentsModel = post.toBusinessModelWithComments(commentsInPost)
 
-        const output: GetPostWithCommentByIdOutputDTO = postWithCommentsModel
-        return output as GetPostWithCommentByIdOutputDTO
+        const output: GetPostWithCommentsByIdOutputDTO = postWithCommentsModel
+        return output as GetPostWithCommentsByIdOutputDTO
     }
 
     public editPostById = async (input: EditPostByIdInputDTO): Promise<EditPostByIdOutputDTO> => {
@@ -159,7 +160,7 @@ export class PostBusiness {
         const postDB: PostDB | undefined = await this.postDatabase.getPostById(postId)
     
         if (!postDB) {
-            throw new NotFoundError("Post não encontrado.")
+            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
         }
 
         if (payload.role !== USER_ROLES.ADMIN){
@@ -206,7 +207,7 @@ export class PostBusiness {
         const postDB: PostDB | undefined = await this.postDatabase.getPostById(postId)
         
         if (!postDB) {
-            throw new NotFoundError("Post não encontrado.")
+            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
         }
 
         if (payload.role !== USER_ROLES.ADMIN){
@@ -215,7 +216,7 @@ export class PostBusiness {
             }
         }
         
-        await this.postDatabase.deleteUserById(postId)
+        await this.postDatabase.deletePostById(postId)
     
         const output:DeletePostByIdOutputDTO = {
             message: "Post excluído com sucesso!",
@@ -234,7 +235,7 @@ export class PostBusiness {
             throw new UnauthorizedError()
         }
 
-        const postDB:PostDB| undefined = await this.postDatabase.getPostById(postId)
+        const postDB:PostDB | undefined = await this.postDatabase.getPostById(postId)
 
         if (!postDB){
             throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")

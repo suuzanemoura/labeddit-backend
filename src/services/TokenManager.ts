@@ -13,7 +13,7 @@ export class TokenManager {
                 expiresIn: process.env.JWT_EXPIRES_IN
             }
         )
-        return token
+        return token as string
     }
 
     public getPayload = (token: string): TokenPayload | null => {
@@ -24,7 +24,8 @@ export class TokenManager {
             )
 
             return payload as TokenPayload
-				} catch (error) {
+
+		} catch (error) {
             return null
         }
     }

@@ -1,7 +1,7 @@
-import { CommentWithCreatorDB } from "../models/Comment";
-import { LikeDislikePostDB, POST_LIKE, Post, PostDB, PostWithCommentsDB, PostWithCreatorDB } from "../models/Post";
 import { BaseDatabase } from "./BaseDatabase";
 import { UserDatabase } from "./UserDatabase";
+import { LikeDislikePostDB, POST_LIKE, PostDB, PostWithCommentsDB, PostWithCreatorDB } from "../models/Post";
+import { CommentWithCreatorDB } from "../models/Comment";
 
 export class PostDatabase extends BaseDatabase{
     public static TABLE_POSTS = "posts"
@@ -30,22 +30,22 @@ export class PostDatabase extends BaseDatabase{
         return result as PostWithCreatorDB[]
 
         } else {
-        const result: PostWithCreatorDB[] = await BaseDatabase
-            .connection(PostDatabase.TABLE_POSTS)
-            .select(
-                 `${PostDatabase.TABLE_POSTS}.id`,
-                 `${PostDatabase.TABLE_POSTS}.content`,
-                 `${PostDatabase.TABLE_POSTS}.comments`,
-                 `${PostDatabase.TABLE_POSTS}.likes`,
-                 `${PostDatabase.TABLE_POSTS}.dislikes`,
-                 `${PostDatabase.TABLE_POSTS}.created_at`,
-                 `${PostDatabase.TABLE_POSTS}.updated_at`,
-                 `${PostDatabase.TABLE_POSTS}.creator_id`,
-                 `${UserDatabase.TABLE_USERS}.username AS creator_username`
-            )
-            .join(`${UserDatabase.TABLE_USERS}`, `${PostDatabase.TABLE_POSTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
+            const result: PostWithCreatorDB[] = await BaseDatabase
+                .connection(PostDatabase.TABLE_POSTS)
+                .select(
+                    `${PostDatabase.TABLE_POSTS}.id`,
+                    `${PostDatabase.TABLE_POSTS}.content`,
+                    `${PostDatabase.TABLE_POSTS}.comments`,
+                    `${PostDatabase.TABLE_POSTS}.likes`,
+                    `${PostDatabase.TABLE_POSTS}.dislikes`,
+                    `${PostDatabase.TABLE_POSTS}.created_at`,
+                    `${PostDatabase.TABLE_POSTS}.updated_at`,
+                    `${PostDatabase.TABLE_POSTS}.creator_id`,
+                    `${UserDatabase.TABLE_USERS}.username AS creator_username`
+                )
+                .join(`${UserDatabase.TABLE_USERS}`, `${PostDatabase.TABLE_POSTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
 
-        return result as PostWithCreatorDB[]
+            return result as PostWithCreatorDB[]
         
         }
     }
@@ -58,7 +58,7 @@ export class PostDatabase extends BaseDatabase{
         return result as PostDB | undefined
     }
 
-    public async getPostWithCreatorById(id: string): Promise<PostWithCreatorDB>{
+    public async getPostWithCreatorById(id: string): Promise<PostWithCreatorDB | undefined>{
 
         const [result]: PostWithCreatorDB[] = await BaseDatabase
             .connection(PostDatabase.TABLE_POSTS)
@@ -76,11 +76,11 @@ export class PostDatabase extends BaseDatabase{
             .join(`${UserDatabase.TABLE_USERS}`, `${PostDatabase.TABLE_POSTS}.creator_id`, "=", `${UserDatabase.TABLE_USERS}.id`)
             .where({[`${PostDatabase.TABLE_POSTS}.id`]: id})
 
-        return result as PostWithCreatorDB
+        return result as PostWithCreatorDB | undefined
         
     }
 
-    public async getPostWithCreatorAndCommentsById (id: string): Promise<PostWithCommentsDB>{
+    public async getPostWithCreatorAndCommentsById (id: string): Promise<PostWithCommentsDB | undefined>{
 
         const [PostWithCreatorDB]:PostWithCommentsDB[] = await BaseDatabase
             .connection(PostDatabase.TABLE_POSTS)
@@ -115,7 +115,7 @@ export class PostDatabase extends BaseDatabase{
 
         const result: PostWithCommentsDB = {...PostWithCreatorDB, comments_post: commentsDB}
 
-        return result as PostWithCommentsDB
+        return result as PostWithCommentsDB | undefined
     }
 
     public async insertPost(newPostDB: PostDB): Promise<void> {
@@ -131,7 +131,7 @@ export class PostDatabase extends BaseDatabase{
         .where({id: postDB.id})
     }
 
-    public async deleteUserById (id: string): Promise<void> {
+    public async deletePostById (id: string): Promise<void> {
         await BaseDatabase
         .connection(PostDatabase.TABLE_POSTS)
         .del().where({id: id})
@@ -147,6 +147,17 @@ export class PostDatabase extends BaseDatabase{
         })
 
         return result === undefined ?  undefined : result && result.like === 1 ? POST_LIKE.ALREADY_LIKED : POST_LIKE.ALREADY_DISLIKED
+    }
+
+    public async getLikeDislikeFromPostByUserId (id: string):Promise<LikeDislikePostDB[]> {
+
+        const result: LikeDislikePostDB[] = await BaseDatabase
+        .connection(PostDatabase.TABLE_LIKES_DISLIKES)
+        .where({
+            user_id: id
+        })
+
+        return result as LikeDislikePostDB[]
     }
 
     public removeLikeDislikeFromPostById = async (likeDislikePostDB: LikeDislikePostDB): Promise<void> => {
