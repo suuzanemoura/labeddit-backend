@@ -105,6 +105,10 @@ $ npm run test
 - Foram aplicados testes unitários em 100% da business da aplicação.
   ![coverage labeddit](./src/assets/coverage-tests.PNG)
 
+### Status do projeto
+
+- Concluído ⏳
+
 ## Contato
 
 E-mail: suuzanemoura@gmail.com
