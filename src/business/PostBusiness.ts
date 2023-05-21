@@ -1,4 +1,4 @@
-import { CommentDatabase } from "../database/CommentDatabase"
+
 import { PostDatabase } from "../database/PostDatabase"
 import { IdGenerator } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
@@ -19,7 +19,6 @@ import { UnauthorizedError } from "../errors/UnauthorizedError"
 export class PostBusiness {
     constructor (
     private postDatabase: PostDatabase,
-    private commentDatabase: CommentDatabase,
     private idGenerator: IdGenerator,
     private tokenManager: TokenManager
     ) {}
@@ -87,10 +86,6 @@ export class PostBusiness {
             return post.toBusinessModel()
 
         })
-
-        if(!posts.length){
-            throw new NotFoundError("Nenhum post foi encontrado.")
-        }
     
         const output: GetPostsOutputDTO = posts
         return output as GetPostsOutputDTO
@@ -109,7 +104,7 @@ export class PostBusiness {
         const postWithCommentsDB:PostWithCommentsDB | undefined = await this.postDatabase.getPostWithCreatorAndCommentsById(postId)
 
         if(!postWithCommentsDB){
-            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
 
         const commentsInPost:CommentModel[] = postWithCommentsDB.comments_post.map((commentDB) => { 
@@ -160,7 +155,7 @@ export class PostBusiness {
         const postDB: PostDB | undefined = await this.postDatabase.getPostById(postId)
     
         if (!postDB) {
-            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
 
         if (payload.role !== USER_ROLES.ADMIN){
@@ -207,7 +202,7 @@ export class PostBusiness {
         const postDB: PostDB | undefined = await this.postDatabase.getPostById(postId)
         
         if (!postDB) {
-            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
 
         if (payload.role !== USER_ROLES.ADMIN){
@@ -238,7 +233,7 @@ export class PostBusiness {
         const postDB:PostDB | undefined = await this.postDatabase.getPostById(postId)
 
         if (!postDB){
-            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
 
         if (payload.id === postDB.creator_id){

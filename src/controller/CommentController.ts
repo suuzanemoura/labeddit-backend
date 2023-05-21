@@ -64,6 +64,7 @@ export class CommentController{
     public deleteCommentById = async (req: Request, res: Response):Promise<void> => {
       try {
         const input:DeleteCommentByIdInputDTO = DeleteCommentByIdSchema.parse({
+          postId: req.params.postId,
           commentId: req.params.commentId,
           token: req.headers.authorization
         })

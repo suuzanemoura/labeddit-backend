@@ -35,7 +35,7 @@ export class CommentBusiness {
         const postDB:PostDB | undefined = await this.postDatabase.getPostById(postId)
 
         if(!postDB){
-            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
         
         const post = new Post(
@@ -90,13 +90,13 @@ export class CommentBusiness {
         const postDB: PostDB | undefined = await this.postDatabase.getPostById(postId)
     
         if (!postDB) {
-            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
 
         const commentDB: CommentDB | undefined = await this.commentDatabase.getCommentById(commentId)
 
         if(!commentDB){
-            throw new NotFoundError("Comentário não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Comentário não encontrado. Verifique o id e tente novamente.")
         }
 
         if (payload.role !== USER_ROLES.ADMIN){
@@ -132,7 +132,7 @@ export class CommentBusiness {
 
     public deleteCommentById = async (input: DeleteCommentByIdInputDTO):Promise<DeleteCommentByIdOutputDTO> => {
 
-        const { commentId, token } = input
+        const { postId, commentId, token } = input
     
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
     
@@ -146,10 +146,10 @@ export class CommentBusiness {
             throw new NotFoundError("Comentário não encontrado. Verifique o id e tente novamente.")
         }
 
-        const postWithCreatorDB:PostWithCreatorDB | undefined = await this.postDatabase.getPostWithCreatorById(commentDB.post_id)
+        const postWithCreatorDB:PostWithCreatorDB | undefined = await this.postDatabase.getPostWithCreatorById(postId)
 
         if (!postWithCreatorDB) {
-            throw new NotFoundError("Post não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique se o post ainda existe e tente novamente.")
         }
     
         if (payload.role !== USER_ROLES.ADMIN){
@@ -198,7 +198,13 @@ export class CommentBusiness {
         const commentWithCreatorDB:CommentWithCreatorDB | undefined = await this.commentDatabase.getCommentWithCreatorById(commentId)
 
         if (!commentWithCreatorDB){
-            throw new NotFoundError("Comentário não encontrado. Verifique a id e tente novamente.")
+            throw new NotFoundError("Comentário não encontrado. Verifique o id e tente novamente.")
+        }
+        
+        const postDB:PostDB | undefined = await this.postDatabase.getPostById(postId)
+
+        if (!postDB) {
+            throw new NotFoundError("Post não encontrado. Verifique se o post ainda existe e tente novamente.")
         }
 
         if (payload.id === commentWithCreatorDB.creator_id){

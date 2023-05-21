@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 export const DeleteCommentByIdSchema = z.object({
+    postId: z.string().min(1),
     commentId: z.string().min(1),
     token: z.string().min(1)
 })
