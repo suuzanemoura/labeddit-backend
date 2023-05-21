@@ -35,10 +35,16 @@ export class UserBusiness {
 
     const { username, email, password } = input
 
+    const usernameExist:UserDB | undefined = await this.userDatabase.getUserByUsername(username)
+
+    if (usernameExist){
+      throw new ConflictError("Não é possível criar mais de uma conta com o mesmo username. Tente novamente.")
+    }
+
     const userEmailExist:UserDB | undefined = await this.userDatabase.getUserByEmail(email)
 
     if (userEmailExist){
-        throw new ConflictError("Não deve é possível criar mais de uma conta com o mesmo e-mail. Tente novamente.")
+        throw new ConflictError("Não é possível criar mais de uma conta com o mesmo e-mail. Tente novamente.")
     }
 
     const id:string = this.idGenerator.generate()
@@ -132,8 +138,6 @@ export class UserBusiness {
       return user.toBusinessModel()
     })
 
-    if(!users.length) throw new NotFoundError("Não há cadastro realizado no banco de dados.")
-
     const output: GetUsersOutputDTO = users
 
     return output as GetUsersOutputDTO
@@ -159,7 +163,7 @@ export class UserBusiness {
     const userDB: UserDB | undefined = await this.userDatabase.getUserById(id)
 
     if (!userDB){
-      throw new NotFoundError("Cadastro não encontrado. Verifique a id e tente novamente.")
+      throw new NotFoundError("Cadastro não encontrado. Verifique o id e tente novamente.")
     }
   
     const user = new User(
@@ -196,11 +200,27 @@ export class UserBusiness {
     const userDB: UserDB | undefined = await this.userDatabase.getUserById(id)
   
     if (!userDB) {
-      throw new NotFoundError("Cadastro não encontrado.")
+      throw new NotFoundError("Cadastro não encontrado. Verifique o id e tente novamente.")
     }
 
     if (!username && !email && !password){
       throw new BadRequestError()
+    }
+
+    if(username){
+      const usernameExist:UserDB | undefined = await this.userDatabase.getUserByUsername(username)
+
+      if (usernameExist){
+        throw new ConflictError("Esse username já está em uso, tente novamente com outro username.")
+      }
+    }
+
+    if(email){
+      const userEmailExist:UserDB | undefined = await this.userDatabase.getUserByEmail(email)
+
+      if(userEmailExist){
+        throw new ConflictError("Não é possível usar o mesmo email em mais de uma conta.")
+      }
     }
 
     const user = new User(
@@ -251,7 +271,7 @@ export class UserBusiness {
     const userDB: UserDB | undefined = await this.userDatabase.getUserById(id)
   
     if (!userDB) {
-      throw new NotFoundError("Usuário não encontrado. Verifique o id e tente novamente.")
+      throw new NotFoundError("Cadastro não encontrado. Verifique o id e tente novamente.")
     }
 
     const likeOrDislikeOnPostsExists: LikeDislikePostDB[] = await this.postsDatabase.getLikeDislikeFromPostByUserId(id)
