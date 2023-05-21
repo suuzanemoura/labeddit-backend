@@ -1,6 +1,6 @@
 # Labeddit - Backend
 
-![diagram labeddit](./src/assets/diagram.PNG)
+![diagram labeddit](./src/assets/diagram-tables-database.PNG)
 
 ## Introdução
 
