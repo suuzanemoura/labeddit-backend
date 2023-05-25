@@ -36,30 +36,6 @@ export class User {
     private createdAt: string,
     ) {}
 
-    public get ID(): string {
-        return this.id;
-    }
-
-    public get USERNAME(): string {
-        return this.username;
-    }
-
-    public get EMAIL(): string {
-        return this.email;
-    }
-
-    public get PASSWORD(): string {
-        return this.password;
-    }
-
-    public get ROLE(): USER_ROLES {
-        return this.role
-    }
-
-    public get CREATED_AT(): string {
-        return this.createdAt
-    }
-
     public set USERNAME(newUsername: string) {
         this.username = newUsername;
     }
@@ -70,10 +46,6 @@ export class User {
 
     public set PASSWORD(newPassword: string) {
         this.password = newPassword;
-    }
-
-    public set ROLE(newRole: USER_ROLES) {
-        this.role = newRole;
     }
 
     public toDBModel(): UserDB {

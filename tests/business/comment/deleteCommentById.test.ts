@@ -63,7 +63,7 @@ describe("Testando deleteCommentById", () => {
 
         } catch (error) {
             if (error instanceof NotFoundError) {
-                expect(error.message).toBe("Post não encontrado. Verifique se o post ainda existe e tente novamente.");
+                expect(error.message).toBe("Post não encontrado. Verifique o id e tente novamente.");
                 expect(error.statusCode).toBe(404);
             }
         }

@@ -20,12 +20,12 @@ describe("Testando getPosts", () => {
 
     const output = await postBusiness.getPosts(input);
 
-    expect(output).toHaveLength(2);
+    expect(output).toHaveLength(3);
     expect(output).toEqual([
         {
             id: "p001",
             content: "Exemplo de conteúdo de post 1",
-            comments: 0,
+            comments: 2,
             likes: 1,
             dislikes: 0, 
             createdAt: expect.any(String),
@@ -38,8 +38,8 @@ describe("Testando getPosts", () => {
           {
             id: "p002",
             content: "Exemplo de conteúdo de post 2",
-            comments: 0,
-            likes: 1,
+            comments: 2,
+            likes: 0,
             dislikes: 1, 
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
@@ -47,7 +47,20 @@ describe("Testando getPosts", () => {
                 id: "id-mock-admin",
                 username: "user_admin"
             }
-          }
+          },
+          {
+            id: "p003",
+            content: "Exemplo de conteúdo de post 3",
+            comments: 0,
+            likes: 0,
+            dislikes: 0, 
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            creator: {
+              id: "id-mock",
+              username: "user_test"
+            }
+          },
     ]);
   });
 
@@ -64,8 +77,8 @@ describe("Testando getPosts", () => {
         {
             id: "p002",
             content: "Exemplo de conteúdo de post 2",
-            comments: 0,
-            likes: 1,
+            comments: 2,
+            likes: 0,
             dislikes: 1, 
             createdAt: expect.any(String),
             updatedAt: expect.any(String),

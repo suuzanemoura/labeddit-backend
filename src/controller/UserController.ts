@@ -8,6 +8,8 @@ import { LoginInputDTO, LoginOutputDTO, LoginSchema } from "../dtos/User/login.d
 import { DeleteUserByIdInputDTO, DeleteUserByIdOutputDTO, DeleteUserByIdSchema } from "../dtos/User/deleteUserById.dto"
 import { EditUserByIdInputDTO, EditUserByIdOutputDTO, EditUserByIdSchema } from "../dtos/User/editUserById.dto"
 import { GetUserByIdInputDTO, GetUserByIdOutputDTO, GetUserByIdSchema } from "../dtos/User/getUserById.dto"
+import { GetLikesDislikesFromPostsByUserIdInputDTO, GetLikesDislikesFromPostsByUserIdOutputDTO, GetLikesDislikesFromPostsByUserIdSchema } from "../dtos/User/getLikesDislikesFromPostsByUserId.dto"
+import { GetLikesDislikesFromCommentsOnPostIdByUserIdInputDTO, GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO, GetLikesDislikesFromCommentsOnPostIdByUserIdSchema } from "../dtos/User/getLikesDislikesFromCommentsByUserId.dto"
 
 export class UserController{
   constructor(
@@ -101,6 +103,53 @@ export class UserController{
 
       if (error instanceof ZodError) {
           res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
+      } else if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.status(500).send("Erro inesperado.")
+      }
+    }
+  }
+
+  public getLikesDislikesFromPostsByUserId = async (req: Request, res: Response):Promise<void> => {
+    try {
+      const input:GetLikesDislikesFromPostsByUserIdInputDTO = GetLikesDislikesFromPostsByUserIdSchema.parse({
+        id: req.params.id,
+        token: req.headers.authorization,
+      })
+
+      const output:GetLikesDislikesFromPostsByUserIdOutputDTO = await this.userBusiness.getLikesDislikesFromPostsByUserId(input)
+      res.status(200).send(output)
+
+    } catch (error) {
+      console.log(error)
+
+      if (error instanceof ZodError) {
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
+      } else if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.status(500).send("Erro inesperado.")
+      }
+    }
+  }
+
+  public getLikesDislikesFromCommentsOnPostIdByUserId = async (req: Request, res: Response):Promise<void> => {
+    try {
+      const input:GetLikesDislikesFromCommentsOnPostIdByUserIdInputDTO = GetLikesDislikesFromCommentsOnPostIdByUserIdSchema.parse({
+        id: req.params.id,
+        postId: req.params.postId,
+        token: req.headers.authorization,
+      })
+
+      const output:GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO = await this.userBusiness.getLikesDislikesFromCommentsOnPostIdByUserId(input)
+      res.status(200).send(output)
+
+    } catch (error) {
+      console.log(error)
+
+      if (error instanceof ZodError) {
+        res.status(400).send(`${error.issues[0].path[0]}: ${error.issues[0].message}`)
       } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {

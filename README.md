@@ -59,6 +59,10 @@ $ npm run test
     - Retorna todos os usuários cadastrados, apenas ADMINs tem acess a informação.
   - Get user by id
     - Retorna um usuário através do seu ID, apenas o próprio usuário pode acessar suas informações.
+  - Get likes/dislikes from posts by user id
+    - Retorna todos os likes e/ou dislikes de todos os posts em que o usuário interagiu, apenas o próprio usuário pode acessar as informações.
+  - Get likes/dislikes from comments on post id by user id
+    - Retorna todos os likes e/ou dislikes de todos os comentários em um post específico em que o usuário interagiu, apenas o próprio usuário pode acessar as informações.
   - Edit user by id
     - Atualização de uma ou mais informações de um usuário através do seu ID.
   - Delete user by id
@@ -88,17 +92,32 @@ $ npm run test
 
 ### Regras de negócio
 
-- O usuário não deve poder se cadastrar com um username duplicado;
-- O usuário não deve poder se cadastrar com um e-mail duplicado;
-- O post sempre deverá ter um usuário;
-- Somente ADMINs podem ter acesso a informações de todos os usuários;
-- Somente o próprio usuário pode acessar suas informações;
-- Somente usuários já cadastrados podem visualizar os posts criados;
-- O usuário não deve poder dar like/dislike no próprio post ou comentário;
-- Caso usuário dê um like em um post ou comentário que já tenha dado like, o like é desfeito (deleta o item da tabela);
-- Caso usuário dê um dislike em um post ou comentário que já tenha dado dislike, o dislike é desfeito (deleta o item da tabela);
-- Caso usuário dê um like em um post ou comentário que tenha dado dislike, o like sobrescreve o dislike.
-- Caso usuário dê um dislike em um post ou comentário que tenha dado like, o dislike sobrescreve o like.
+- **Sobre usuários**
+
+  - O usuário não deve poder se cadastrar com um username duplicado;
+  - O usuário não deve poder se cadastrar com um e-mail duplicado;
+  - Somente ADMINs podem ter acesso a informações de todos os usuários;
+  - Somente o próprio usuário ou um ADMIN podem acessar o seu cadastro;
+  - Somente o próprio usuário ou um ADMIN podem editar e deletar o seu cadastro;
+
+- **Sobre postagens**
+
+  - O post sempre deverá ter um usuário;
+  - Somente usuários já cadastrados podem visualizar os posts criados;
+  - Somente o usuário autor ou um ADMIN podem editar e deletar um post.
+  - O usuário não deve poder dar like/dislike no próprio post;
+
+- **Sobre comentários**
+
+  - O comentário sempre deverá ter um usuário;
+  - Somente usuários já cadastrados podem visualizar os comentários criados;
+  - Somente os usuários autor do comentário ou autor do post onde está o comentário, ou um ADMIN podem editar e deletar um post.
+
+- **Sobre interações**
+  - Caso usuário dê um like em um post ou comentário que já tenha dado like, o like é desfeito (deleta o item da tabela);
+  - Caso usuário dê um dislike em um post ou comentário que já tenha dado dislike, o dislike é desfeito (deleta o item da tabela);
+  - Caso usuário dê um like em um post ou comentário que tenha dado dislike, o like sobrescreve o dislike.
+  - Caso usuário dê um dislike em um post ou comentário que tenha dado like, o dislike sobrescreve o like.
 
 ### Testes unitários
 
