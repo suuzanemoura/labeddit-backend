@@ -1,7 +1,8 @@
 import { BaseDatabase } from "./BaseDatabase";
 import { UserDatabase } from "./UserDatabase";
-import { LikeDislikePostDB, POST_LIKE, PostDB, PostWithCommentsDB, PostWithCreatorDB } from "../models/Post";
+import { PostDB, PostWithCommentsDB, PostWithCreatorDB } from "../models/Post";
 import { CommentWithCreatorDB } from "../models/Comment";
+import { LikeDislikePostDB, POST_LIKE } from "../models/LikeOrDislike";
 
 export class PostDatabase extends BaseDatabase{
     public static TABLE_POSTS = "posts"
@@ -147,17 +148,6 @@ export class PostDatabase extends BaseDatabase{
         })
 
         return result === undefined ?  undefined : result && result.like === 1 ? POST_LIKE.ALREADY_LIKED : POST_LIKE.ALREADY_DISLIKED
-    }
-
-    public async getLikeDislikeFromPostByUserId (id: string):Promise<LikeDislikePostDB[]> {
-
-        const result: LikeDislikePostDB[] = await BaseDatabase
-        .connection(PostDatabase.TABLE_LIKES_DISLIKES)
-        .where({
-            user_id: id
-        })
-
-        return result as LikeDislikePostDB[]
     }
 
     public removeLikeDislikeFromPostById = async (likeDislikePostDB: LikeDislikePostDB): Promise<void> => {

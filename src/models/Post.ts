@@ -55,18 +55,7 @@ export interface PostWithCommentsModel{
         username: string,
     },
     commentsPost: CommentModel[]
-}
-
-export interface LikeDislikePostDB {
-    user_id: string,
-    post_id: string,
-    like: number
-}
-  
-export enum POST_LIKE {
-    ALREADY_LIKED = "ALREADY LIKED",
-    ALREADY_DISLIKED = "ALREADY DISLIKED"
-}  
+} 
 
 export class Post {
     constructor(
@@ -80,57 +69,9 @@ export class Post {
       private creatorId: string,
       private creatorUsername: string
     ) {}
-
-    public get ID(): string {
-        return this.id;
-    }
-
-    public get CONTENT(): string {
-        return this.content;
-    }
-
-    public get COMMENTS(): number {
-        return this.comments;
-    }
-
-    public get LIKES(): number {
-        return this.likes;
-    }
-
-    public get DISLIKES(): number {
-        return this.dislikes;
-    }
-
-    public get CREATED_AT(): string {
-        return this.createdAt
-    }
-
-    public get UPDATED_AT(): string {
-        return this.updatedAt
-    }
-
-    public get CREATOR_ID(): string {
-        return this.creatorId;
-    }
-
-    public get CREATOR_USERNAME(): string {
-        return this.creatorUsername;
-    }
     
     public set CONTENT(newContent: string) {
         this.content = newContent;
-    }
-
-    public set COMMENTS(newComments: number) {
-        this.comments = newComments;
-    }
-
-    public set LIKES(newLikes: number) {
-        this.likes = newLikes;
-    }
-
-    public set DISLIKES(newDislikes: number) {
-        this.dislikes = newDislikes;
     }
 
     public set UPDATED_AT(newUpdatedAt: string) {

@@ -10,8 +10,8 @@ import { GetUsersInputDTO, GetUsersOutputDTO } from "../dtos/User/getUsers.dto"
 import { LoginInputDTO, LoginOutputDTO } from "../dtos/User/login.dto"
 import { SignupInputDTO, SignupOutputDTO } from "../dtos/User/signup.dto"
 import { CommentDB } from "../models/Comment"
-import { Comment, CommentWithCreatorDB, LikeDislikeCommentDB } from "../models/Comment"
-import { LikeDislikePostDB, Post, PostDB, PostWithCreatorDB } from "../models/Post"
+import { Comment, CommentWithCreatorDB } from "../models/Comment"
+import { Post, PostDB, PostWithCreatorDB } from "../models/Post"
 import { TokenPayload, USER_ROLES, User, UserDB, UserModel } from "../models/User"
 import { BadRequestError } from "../errors/BadRequestError"
 import { ConflictError } from "../errors/ConflictError"
@@ -19,6 +19,9 @@ import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
 import { GetUserByIdInputDTO, GetUserByIdOutputDTO } from "../dtos/User/getUserById.dto"
+import { LikeDislikeCommentDB, LikeDislikeCommentModel, LikeDislikePostDB, LikeDislikePostModel, LikeOrDislikeComment, LikeOrDislikePost } from "../models/LikeOrDislike"
+import { GetLikesDislikesFromPostsByUserIdInputDTO, GetLikesDislikesFromPostsByUserIdOutputDTO } from "../dtos/User/getLikesDislikesFromPostsByUserId.dto"
+import { GetLikesDislikesFromCommentsOnPostIdByUserIdInputDTO, GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO } from "../dtos/User/getLikesDislikesFromCommentsByUserId.dto"
 
 
 export class UserBusiness {
@@ -181,6 +184,103 @@ export class UserBusiness {
 
   }
 
+  public getLikesDislikesFromPostsByUserId = async (input: GetLikesDislikesFromPostsByUserIdInputDTO):Promise<GetLikesDislikesFromPostsByUserIdOutputDTO> => {
+
+    const { id, token } = input
+
+    const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+
+    if(!payload) {
+      throw new UnauthorizedError()
+    }
+
+    if (payload.role !== USER_ROLES.ADMIN) {
+      if (payload.id !== id) {
+        throw new ForbiddenError("Somente o próprio usuário ou um ADMIN podem ter acesso às suas informações. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
+      }
+    }
+
+    const userDB: UserDB | undefined = await this.userDatabase.getUserById(id)
+
+    if (!userDB){
+      throw new NotFoundError("Cadastro não encontrado. Verifique o id e tente novamente.")
+    }
+
+    const likesOrDislikesOnPostsExistsDB: LikeDislikePostDB[] = await this.userDatabase.getLikesDislikesFromPostsByUserId(id)
+
+    if (!likesOrDislikesOnPostsExistsDB.length){
+      throw new NotFoundError("Likes e/ou dislikes não encontrados.")
+    }
+  
+    const likesOrDislikesOnPosts:LikeDislikePostModel[] = likesOrDislikesOnPostsExistsDB.map((likesOrDislikesOnPost) => {
+
+      const likeOrDislike = new LikeOrDislikePost(
+        likesOrDislikesOnPost.user_id,
+        likesOrDislikesOnPost.post_id,
+        likesOrDislikesOnPost.like === 1 ? true : false
+      )
+
+      return likeOrDislike.toBusinessModel()
+    })
+
+    const output:GetLikesDislikesFromPostsByUserIdOutputDTO = likesOrDislikesOnPosts
+
+    return output as GetLikesDislikesFromPostsByUserIdOutputDTO
+
+  }
+
+  public getLikesDislikesFromCommentsOnPostIdByUserId = async (input: GetLikesDislikesFromCommentsOnPostIdByUserIdInputDTO):Promise<GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO> => {
+
+    const { id, postId, token } = input
+
+    const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+
+    if(!payload) {
+      throw new UnauthorizedError()
+    }
+
+    if (payload.role !== USER_ROLES.ADMIN) {
+      if (payload.id !== id) {
+        throw new ForbiddenError("Somente o próprio usuário ou um ADMIN podem ter acesso às suas informações. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.")
+      }
+    }
+
+    const userDB: UserDB | undefined = await this.userDatabase.getUserById(id)
+
+    if (!userDB){
+      throw new NotFoundError("Cadastro não encontrado. Verifique o id e tente novamente.")
+    }
+
+    const postDB: PostDB | undefined = await this.postsDatabase.getPostById(postId)
+
+    if (!postDB){
+      throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
+    }
+
+    const likesOrDislikesOnCommentsExistsDB: LikeDislikeCommentDB[] = await this.userDatabase.getLikesDislikesFromCommentsOnPostIdByUserId(id, postId)
+
+    if (!likesOrDislikesOnCommentsExistsDB.length){
+      throw new NotFoundError("Likes e/ou dislikes não encontrados.")
+    }
+  
+    const likesOrDislikesOnComments:LikeDislikeCommentModel[] = likesOrDislikesOnCommentsExistsDB.map((likesOrDislikesOnComment) => {
+
+      const likeOrDislike = new LikeOrDislikeComment(
+        likesOrDislikesOnComment.user_id,
+        likesOrDislikesOnComment.post_id,
+        likesOrDislikesOnComment.comment_id,
+        likesOrDislikesOnComment.like === 1 ? true : false
+      )
+
+      return likeOrDislike.toBusinessModel()
+    })
+
+    const output:GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO = likesOrDislikesOnComments
+
+    return output as GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO
+
+  }
+
   public editUserById = async (input: EditUserByIdInputDTO):Promise<EditUserByIdOutputDTO> => {
 
     const { id, username, email, password, token } = input
@@ -274,7 +374,7 @@ export class UserBusiness {
       throw new NotFoundError("Cadastro não encontrado. Verifique o id e tente novamente.")
     }
 
-    const likeOrDislikeOnPostsExists: LikeDislikePostDB[] = await this.postsDatabase.getLikeDislikeFromPostByUserId(id)
+    const likeOrDislikeOnPostsExists: LikeDislikePostDB[] = await this.userDatabase.getLikesDislikesFromPostsByUserId(id)
 
     if (likeOrDislikeOnPostsExists.length){
 
@@ -308,7 +408,7 @@ export class UserBusiness {
 
     }
 
-    const likeOrDislikeOnCommentsExists:LikeDislikeCommentDB[] = await this.commentDatabase.getLikeDislikeFromCommentByUserId(id)
+    const likeOrDislikeOnCommentsExists:LikeDislikeCommentDB[] = await this.userDatabase.getLikesDislikesFromCommentsByUserId(id)
 
     if(likeOrDislikeOnCommentsExists.length){
 

@@ -1,5 +1,6 @@
 import { USER_ROLES, UserDB } from "../../src/models/User";
 import { BaseDatabase } from "../../src/database/BaseDatabase";
+import { LikeDislikeCommentDB, LikeDislikePostDB } from "../../src/models/LikeOrDislike";
 
 export const usersMock: UserDB[] = [
   {
@@ -22,7 +23,7 @@ export const usersMock: UserDB[] = [
     id: "id-mock",
     username: "user_test",
     email: "user@email.com",
-    password: "hash-mock", // senha = "User@123"
+    password: "hash-mock-test", // senha = "User@123"
     created_at: new Date().toISOString(),
     role: USER_ROLES.NORMAL
   },
@@ -51,6 +52,104 @@ export class UserDatabaseMock extends BaseDatabase {
     public async getUserByEmail(email: string): Promise<UserDB | undefined> {
         return usersMock.filter(user => user.email === email)[0]
     }
+
+    public async getLikesDislikesFromPostsByUserId (id: string):Promise<LikeDislikePostDB[]> {
+
+      switch (id) {
+        case "id-mock-admin":
+          return [
+            {
+              user_id: 'id-mock-admin',
+              post_id: 'p001',
+              like: 1,
+            }
+          ]
+        case "id-mock-normal":
+          return [
+            {
+                user_id: 'id-mock-normal',
+                post_id: 'p002',
+                like: 0,
+            }
+          ]
+      
+        default:
+          return []
+      }
+      
+    }
+
+  public async getLikesDislikesFromCommentsByUserId (id: string):Promise<LikeDislikeCommentDB[]> {
+
+    switch (id) {
+      case "id-mock-admin":
+        return [
+          {
+              user_id: 'id-mock-admin',
+              post_id: 'p002',
+              comment_id: 'c003',
+              like: 1,
+          },
+          {
+              user_id: 'id-mock-admin',
+              post_id: 'p002',
+              comment_id: 'c004',
+              like: 1,
+          }
+        ]
+
+      case "id-mock":
+        return [
+          {
+              user_id: 'id-mock',
+              post_id: 'p001',
+              comment_id: 'c001',
+              like: 0,
+          },
+          {
+              user_id: 'id-mock',
+              post_id: 'p001',
+              comment_id: 'c002',
+              like: 0,
+          }
+        ]
+    
+      default:
+        return []
+    }
+
+  }
+
+  public async getLikesDislikesFromCommentsOnPostIdByUserId (id: string, postId: string):Promise<LikeDislikeCommentDB[]> {
+
+    return id === "id-mock-admin" && postId === "p002" ?
+      [{
+            user_id: 'id-mock-admin',
+            post_id: 'p002',
+            comment_id: 'c003',
+            like: 1,
+        },
+        {
+            user_id: 'id-mock-admin',
+            post_id: 'p002',
+            comment_id: 'c004',
+            like: 1,
+      }]
+    : id === "id-mock" && postId === "p001" ?
+    [{
+        user_id: 'id-mock',
+        post_id: 'p001',
+        comment_id: 'c001',
+        like: 0,
+      },
+      {
+        user_id: 'id-mock',
+        post_id: 'p001',
+        comment_id: 'c002',
+        like: 0,
+    }]
+    : []
+  }
 
     public async insertUser(newUserDB: UserDB): Promise<void> {
         

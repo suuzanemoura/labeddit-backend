@@ -17,7 +17,7 @@ export class HashManagerMock {
           return hash === "hash-mock-admin"
 
         case "User@123":
-          return hash === "hash-mock"
+          return hash === "hash-mock-test"
           
         default:
           return false

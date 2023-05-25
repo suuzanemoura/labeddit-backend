@@ -26,7 +26,7 @@ describe("Testando getPostWithCommentsById", () => {
             {
                 id: "p001",
                 content: "Exemplo de conteúdo de post 1",
-                comments: 0,
+                comments: 2,
                 likes: 1,
                 dislikes: 0, 
                 createdAt: expect.any(String),
@@ -40,7 +40,7 @@ describe("Testando getPostWithCommentsById", () => {
                         id: 'c001',
                         content: 'Exemplo de Comentário 1',
                         likes: 0,
-                        dislikes: 0,
+                        dislikes: 1,
                         createdAt: expect.any(String),
                         updatedAt: expect.any(String),
                         creator: {
@@ -52,7 +52,7 @@ describe("Testando getPostWithCommentsById", () => {
                         id: 'c002',
                         content: 'Exemplo de Comentário 2',
                         likes: 0,
-                        dislikes: 0,
+                        dislikes: 1,
                         createdAt: expect.any(String),
                         updatedAt: expect.any(String),
                         creator: {
@@ -65,6 +65,56 @@ describe("Testando getPostWithCommentsById", () => {
         );
     });
 
+    test("deve retornar post com o id igual do input", async () => {
+        const input = GetPostWithCommentsByIdSchema.parse({
+            postId: "p002",
+            token: "token-mock",
+        });
+
+        const output = await postBusiness.getPostWithCommentsById(input)
+
+        expect(output).toEqual(
+            {
+                id: "p002",
+                content: "Exemplo de conteúdo de post 2",
+                comments: 2,
+                likes: 0,
+                dislikes: 1, 
+                createdAt: expect.any(String),
+                updatedAt: expect.any(String),
+                creator: {
+                    id: "id-mock-admin",
+                    username: "user_admin",
+                },
+                commentsPost: [
+                    {
+                        id: 'c003',
+                        content: 'Exemplo de Comentário 3',
+                        likes: 1,
+                        dislikes: 0,
+                        createdAt: expect.any(String),
+                        updatedAt: expect.any(String),
+                        creator: {
+                            id: "id-mock-normal",
+                            username: "user_normal",
+                        }
+                    },
+                    {
+                        id: 'c004',
+                        content: 'Exemplo de Comentário 4',
+                        likes: 1,
+                        dislikes: 0,
+                        createdAt: expect.any(String),
+                        updatedAt: expect.any(String),
+                        creator: {
+                            id: "id-mock",
+                            username: "user_test"
+                        }
+                    }
+                ]
+            }
+        );
+    });
 
     test("deve disparar erro de DTO para o token", async () => {
         expect.assertions(1);

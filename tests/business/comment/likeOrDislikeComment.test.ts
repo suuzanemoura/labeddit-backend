@@ -5,7 +5,6 @@ import { IdGeneratorMock } from "../../mocks/IdGeneratorMock";
 import { TokenManagerMock } from "../../mocks/TokenManagerMock";
 import { ZodError } from "zod";
 import { UnauthorizedError } from "../../../src/errors/UnauthorizedError";
-import { LikeOrDislikePostSchema } from "../../../src/dtos/Post/likeOrDislikePost.dto";
 import { ForbiddenError } from "../../../src/errors/ForbiddenError";
 import { NotFoundError } from "../../../src/errors/NotFoundError";
 import { LikeOrDislikeCommentSchema } from "../../../src/dtos/Comment/likeOrDislikeComment.dto";
@@ -20,9 +19,9 @@ describe("Testando likeOrDislikeComment", () => {
 
     test("deve retornar undefined ao dar um like", async () => {
         const input = LikeOrDislikeCommentSchema.parse({
-            postId: "p002",
-            commentId: "c003",
-            token: "token-mock",
+            postId: "p001",
+            commentId: "c001",
+            token: "token-mock-normal",
             like: true
         });
     
@@ -34,8 +33,8 @@ describe("Testando likeOrDislikeComment", () => {
     test("deve retornar undefined ao dar um dislike", async () => {
         const input = LikeOrDislikeCommentSchema.parse({
             postId: "p002",
-            commentId: "c003",
-            token: "token-mock",
+            commentId: "c004",
+            token: "token-mock-normal",
             like: false
         });
     
@@ -47,9 +46,22 @@ describe("Testando likeOrDislikeComment", () => {
     test("deve retornar undefined ao retirar um like", async () => {
         const input = LikeOrDislikeCommentSchema.parse({
             postId: "p002",
-            commentId: "c004",
+            commentId: "c003",
             token: "token-mock-admin",
             like: true
+        });
+    
+        const output = await commentBusiness.likeOrDislikeComment(input)
+
+        expect(output).toBeUndefined()
+    });
+
+    test("deve retornar undefined ao retirar um dislike", async () => {
+        const input = LikeOrDislikeCommentSchema.parse({
+            postId: "p001",
+            commentId: "c002",
+            token: "token-mock",
+            like: false
         });
     
         const output = await commentBusiness.likeOrDislikeComment(input)
@@ -129,7 +141,7 @@ describe("Testando likeOrDislikeComment", () => {
 
         } catch (error) {
             if (error instanceof NotFoundError) {
-                expect(error.message).toBe("Post não encontrado. Verifique se o post ainda existe e tente novamente.");
+                expect(error.message).toBe("Post não encontrado. Verifique o id e tente novamente.");
                 expect(error.statusCode).toBe(404);
             }
         }

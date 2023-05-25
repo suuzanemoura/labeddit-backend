@@ -9,11 +9,12 @@ import { GetPostWithCommentsByIdInputDTO, GetPostWithCommentsByIdOutputDTO } fro
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../dtos/Post/getPosts.dto"
 import { LikeOrDislikePostInputDTO, LikeOrDislikePostOutputDTO } from "../dtos/Post/likeOrDislikePost.dto"
 import { Comment, CommentModel } from "../models/Comment"
-import { LikeDislikePostDB, POST_LIKE, Post, PostDB, PostModel, PostWithCommentsDB, PostWithCommentsModel, PostWithCreatorDB } from "../models/Post"
+import { Post, PostDB, PostModel, PostWithCommentsDB, PostWithCommentsModel, PostWithCreatorDB } from "../models/Post"
 import { TokenPayload, USER_ROLES } from "../models/User"
 import { ForbiddenError } from "../errors/ForbiddenError"
 import { NotFoundError } from "../errors/NotFoundError"
 import { UnauthorizedError } from "../errors/UnauthorizedError"
+import { LikeDislikePostDB, LikeOrDislikePost, POST_LIKE } from "../models/LikeOrDislike"
 
 
 export class PostBusiness {
@@ -252,13 +253,13 @@ export class PostBusiness {
             payload.username
         )
 
-        const likeSQLite: number = like ? 1 : 0
+        const likeDislikePost = new LikeOrDislikePost(
+            payload.id,
+            postId,
+            like
+        )
 
-        const likeDislikePostDB:LikeDislikePostDB = {
-            user_id: payload.id,
-            post_id: postId,
-            like: likeSQLite
-        }
+        const likeDislikePostDB:LikeDislikePostDB = likeDislikePost.toDBModel()
 
         const likeDislikeExists:POST_LIKE | undefined = await this.postDatabase.getLikeDislikeFromPostById(likeDislikePostDB)
 

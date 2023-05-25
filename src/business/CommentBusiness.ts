@@ -6,12 +6,13 @@ import { CreateCommentInputDTO, CreateCommentOutputDTO } from "../dtos/Comment/c
 import { DeleteCommentByIdInputDTO, DeleteCommentByIdOutputDTO } from "../dtos/Comment/deleteCommentById.dto";
 import { EditCommentByIdInputDTO, EditCommentByIdOutputDTO } from "../dtos/Comment/editComment.dto";
 import { LikeOrDislikeCommentInputDTO, LikeOrDislikeCommentOutputDTO } from "../dtos/Comment/likeOrDislikeComment.dto";
-import { COMMENT_LIKE, Comment, CommentDB, CommentWithCreatorDB, LikeDislikeCommentDB } from "../models/Comment";
+import { Comment, CommentDB, CommentWithCreatorDB } from "../models/Comment";
 import { Post, PostDB, PostWithCreatorDB } from "../models/Post";
 import { TokenPayload, USER_ROLES } from "../models/User";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { COMMENT_LIKE, LikeDislikeCommentDB, LikeOrDislikeComment } from "../models/LikeOrDislike";
 
 
 export class CommentBusiness {
@@ -149,7 +150,7 @@ export class CommentBusiness {
         const postWithCreatorDB:PostWithCreatorDB | undefined = await this.postDatabase.getPostWithCreatorById(postId)
 
         if (!postWithCreatorDB) {
-            throw new NotFoundError("Post não encontrado. Verifique se o post ainda existe e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
     
         if (payload.role !== USER_ROLES.ADMIN){
@@ -204,7 +205,7 @@ export class CommentBusiness {
         const postDB:PostDB | undefined = await this.postDatabase.getPostById(postId)
 
         if (!postDB) {
-            throw new NotFoundError("Post não encontrado. Verifique se o post ainda existe e tente novamente.")
+            throw new NotFoundError("Post não encontrado. Verifique o id e tente novamente.")
         }
 
         if (payload.id === commentWithCreatorDB.creator_id){
@@ -223,14 +224,14 @@ export class CommentBusiness {
             commentWithCreatorDB.creator_username
         )
 
-        const likeSQLite: number = like ? 1 : 0
+        const likeDislikeComment = new LikeOrDislikeComment(
+            payload.id,
+            postId,
+            commentId,
+            like
+        )
 
-        const likeDislikeCommentDB:LikeDislikeCommentDB = {
-            user_id: payload.id,
-            post_id: postId,
-            comment_id: commentId,
-            like: likeSQLite
-        }
+        const likeDislikeCommentDB = likeDislikeComment.toDBModel()
 
         const likeDislikeExists:COMMENT_LIKE | undefined = await this.commentDatabase.getLikeDislikeFromCommentById(likeDislikeCommentDB)
 

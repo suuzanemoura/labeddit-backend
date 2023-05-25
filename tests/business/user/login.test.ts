@@ -20,7 +20,7 @@ describe("Testando login", () => {
     new HashManagerMock()
   )
 
-  test("deve gerar um token ao realizar login", async () => {
+  test("deve gerar um token ao realizar login do user_normal", async () => {
     const input = LoginSchema.parse({
       email: "usernormal@email.com",
       password: "Normal@123"
@@ -31,6 +31,34 @@ describe("Testando login", () => {
     expect(output).toEqual({
       message: "Login realizado com sucesso!",
       token: "token-mock-normal"
+    })
+  })
+
+  test("deve gerar um token ao realizar login do user_admin", async () => {
+    const input = LoginSchema.parse({
+      email: "useradmin@email.com",
+      password: "Admin@123"
+    })
+
+    const output = await userBusiness.login(input)
+
+    expect(output).toEqual({
+      message: "Login realizado com sucesso!",
+      token: "token-mock-admin"
+    })
+  })
+
+  test("deve gerar um token ao realizar login do user_test", async () => {
+    const input = LoginSchema.parse({
+      email: "user@email.com",
+      password: "User@123"
+    })
+
+    const output = await userBusiness.login(input)
+
+    expect(output).toEqual({
+      message: "Login realizado com sucesso!",
+      token: "token-mock"
     })
   })
 

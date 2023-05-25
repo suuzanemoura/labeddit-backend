@@ -39,6 +39,55 @@ describe("Testando likeOrDislikePost", () => {
         expect(output).toBeUndefined()
     });
 
+    test("deve retornar undefined ao dar um like", async () => {
+        const input = LikeOrDislikePostSchema.parse({
+            postId: "p003",
+            token: "token-mock-admin",
+            like: true
+        });
+    
+        const output = await postBusiness.likeOrDislikePost(input)
+
+        expect(output).toBeUndefined()
+    });
+
+    test("deve retornar undefined ao dar um dislike", async () => {
+        const input = LikeOrDislikePostSchema.parse({
+            postId: "p003",
+            token: "token-mock-normal",
+            like: false
+        });
+    
+        const output = await postBusiness.likeOrDislikePost(input)
+
+        expect(output).toBeUndefined()
+    });
+
+
+    test("deve retornar undefined ao sobrescrever um like com um dislike", async () => {
+        const input = LikeOrDislikePostSchema.parse({
+            postId: "p001",
+            token: "token-mock-admin",
+            like: false
+        });
+    
+        const output = await postBusiness.likeOrDislikePost(input)
+
+        expect(output).toBeUndefined()
+    });
+
+    test("deve retornar undefined ao sobrescrever um dislike com um like", async () => {
+        const input = LikeOrDislikePostSchema.parse({
+            postId: "p002",
+            token: "token-mock-normal",
+            like: true
+        });
+    
+        const output = await postBusiness.likeOrDislikePost(input)
+
+        expect(output).toBeUndefined()
+    });
+
     test("deve disparar erro de DTO para o postId", async () => {
         expect.assertions(1);
         try {

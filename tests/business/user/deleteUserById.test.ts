@@ -21,7 +21,33 @@ describe("Testando deleteUserById", () => {
         new HashManagerMock()
       )
 
-    test("deve retornar mensagem de exclusão concluída com sucesso", async () => {
+    test("deve retornar mensagem de exclusão do user_admin concluída com sucesso", async () => {
+        const input = DeleteUserByIdSchema.parse({
+            id: "id-mock-admin",
+            token: "token-mock-admin"
+        })
+
+        const output = await userBusiness.deleteUserById(input)
+
+        expect(output).toEqual({
+            message: "Cadastro excluído com sucesso!"
+        })
+    })
+
+    test("deve retornar mensagem de exclusão do user_normal concluída com sucesso", async () => {
+        const input = DeleteUserByIdSchema.parse({
+            id: "id-mock-normal",
+            token: "token-mock-normal"
+        })
+
+        const output = await userBusiness.deleteUserById(input)
+
+        expect(output).toEqual({
+            message: "Cadastro excluído com sucesso!"
+        })
+    })
+
+    test("deve retornar mensagem de exclusão do user_test concluída com sucesso", async () => {
         const input = DeleteUserByIdSchema.parse({
             id: "id-mock",
             token: "token-mock"

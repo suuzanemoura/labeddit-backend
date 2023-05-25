@@ -1,16 +1,15 @@
-import { LikeDislikePostDB, POST_LIKE, PostDB, PostWithCommentsDB, PostWithCreatorDB } from "../../src/models/Post";
+import { PostDB, PostWithCommentsDB, PostWithCreatorDB } from "../../src/models/Post";
 import { BaseDatabase } from "../../src/database/BaseDatabase";
 import { usersMock } from "./UserDatabaseMock";
 import { UserDB } from "../../src/models/User";
-import { CommentDB, CommentWithCreatorDB } from "../../src/models/Comment";
-import { commentsMock } from "./CommentDatabaseMock";
+import { LikeDislikePostDB, POST_LIKE } from "../../src/models/LikeOrDislike";
 
 const postsMock: PostDB[] = [
   {
     id: "p001",
     creator_id: "id-mock-normal",
     content: "Exemplo de conteúdo de post 1",
-    comments: 0,
+    comments: 2,
     likes: 1,
     dislikes: 0, 
     created_at: new Date().toISOString(),
@@ -20,9 +19,19 @@ const postsMock: PostDB[] = [
     id: "p002",
     creator_id: "id-mock-admin",
     content: "Exemplo de conteúdo de post 2",
-    comments: 0,
-    likes: 1,
+    comments: 2,
+    likes: 0,
     dislikes: 1, 
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "p003",
+    creator_id: "id-mock",
+    content: "Exemplo de conteúdo de post 3",
+    comments: 0,
+    likes: 0,
+    dislikes: 0, 
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -38,11 +47,6 @@ export const likesOrDislikesPostMock: LikeDislikePostDB[] = [
         user_id: 'id-mock-normal',
         post_id: 'p002',
         like: 0,
-    },
-    {
-        user_id: 'id-mock',
-        post_id: 'p002',
-        like: 1,
     }
 ]
 
@@ -93,7 +97,7 @@ export class PostDatabaseMock extends BaseDatabase {
                 return {
                     id: "p001",
                     content: "Exemplo de conteúdo de post 1",
-                    comments: 0,
+                    comments: 2,
                     likes: 1,
                     dislikes: 0, 
                     created_at: new Date().toISOString(),
@@ -105,8 +109,8 @@ export class PostDatabaseMock extends BaseDatabase {
                 return {
                     id: "p002",
                     content: "Exemplo de conteúdo de post 2",
-                    comments: 0,
-                    likes: 1,
+                    comments: 2,
+                    likes: 0,
                     dislikes: 1, 
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
@@ -126,7 +130,7 @@ export class PostDatabaseMock extends BaseDatabase {
                 return {
                     id: "p001",
                     content: "Exemplo de conteúdo de post 1",
-                    comments: 0,
+                    comments: 2,
                     likes: 1,
                     dislikes: 0, 
                     created_at: new Date().toISOString(),
@@ -138,7 +142,7 @@ export class PostDatabaseMock extends BaseDatabase {
                             id: 'c001',
                             content: 'Exemplo de Comentário 1',
                             likes: 0,
-                            dislikes: 0,
+                            dislikes: 1,
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString(),
                             post_id: 'p001',
@@ -149,7 +153,7 @@ export class PostDatabaseMock extends BaseDatabase {
                             id: 'c002',
                             content: 'Exemplo de Comentário 2',
                             likes: 0,
-                            dislikes: 0,
+                            dislikes: 1,
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString(),
                             post_id: 'p001',
@@ -162,8 +166,8 @@ export class PostDatabaseMock extends BaseDatabase {
                 return {
                     id: "p002",
                     content: "Exemplo de conteúdo de post 2",
-                    comments: 0,
-                    likes: 1,
+                    comments: 2,
+                    likes: 0,
                     dislikes: 1, 
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
@@ -173,7 +177,7 @@ export class PostDatabaseMock extends BaseDatabase {
                         {
                             id: 'c003',
                             content: 'Exemplo de Comentário 3',
-                            likes: 0,
+                            likes: 1,
                             dislikes: 0,
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString(),
@@ -184,7 +188,7 @@ export class PostDatabaseMock extends BaseDatabase {
                         {
                             id: 'c004',
                             content: 'Exemplo de Comentário 4',
-                            likes: 0,
+                            likes: 1,
                             dislikes: 0,
                             created_at: new Date().toISOString(),
                             updated_at: new Date().toISOString(),
@@ -214,41 +218,16 @@ export class PostDatabaseMock extends BaseDatabase {
 
     public async getLikeDislikeFromPostById (likeDislikePostDB: LikeDislikePostDB):Promise<POST_LIKE | undefined> {
 
-        const result:LikeDislikePostDB = likesOrDislikesPostMock.filter((likeOrDislikePostMock) => {
-            likeDislikePostDB.user_id === likeOrDislikePostMock.user_id && likeDislikePostDB.post_id === likeOrDislikePostMock.post_id
-        })[0]
+        switch (likeDislikePostDB.user_id && likeDislikePostDB.post_id) {
+            case "id-mock-admin" && "p001":
+                  return POST_LIKE.ALREADY_LIKED
 
-        return result === undefined ?  undefined : result && result.like === 1 ? POST_LIKE.ALREADY_LIKED : POST_LIKE.ALREADY_DISLIKED
-    }
-
-    public async getLikeDislikeFromPostByUserId (id: string):Promise<LikeDislikePostDB[]> {
-
-        switch(id) {
-            case "id-mock-normal":
-              return [{
-                user_id: 'id-mock-normal',
-                post_id: 'p002',
-                like: 0,
-            }]
-    
-            case "id-mock-admin":
-              return [{
-                user_id: 'id-mock-admin',
-                post_id: 'p001',
-                like: 1,
-            }]
-    
-            case "id-mock":
-              return [{
-                user_id: 'id-mock',
-                post_id: 'p002',
-                like: 1,
-            }]
-              
+            case "id-mock-normal" && "p002":
+                return POST_LIKE.ALREADY_DISLIKED
+                  
             default:
-              return []
-          }
-
+                return undefined
+        }
     }
 
     public removeLikeDislikeFromPostById = async (likeDislikePostDB: LikeDislikePostDB): Promise<void> => {
