@@ -122,7 +122,7 @@ $ npm run test
 ### Testes unitários
 
 - Foram realizados testes unitários com jest em 100% da business da aplicação.
-  ![coverage labeddit](./src/assets/coverage-tests.PNG)
+  ![coverage labeddit](./src/assets/coverage.PNG)
 
 ### Status do projeto
 
