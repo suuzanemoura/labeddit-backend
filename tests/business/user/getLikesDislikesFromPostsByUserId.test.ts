@@ -28,6 +28,7 @@ describe("Testando getLikesDislikesFromPostsByUserId", () => {
     });
 
     const output = await userBusiness.getLikesDislikesFromPostsByUserId(input)
+    expect(output).toHaveLength(1)
     expect(output).toEqual(
         [
             {
@@ -46,6 +47,7 @@ describe("Testando getLikesDislikesFromPostsByUserId", () => {
     });
 
     const output = await userBusiness.getLikesDislikesFromPostsByUserId(input)
+    expect(output).toHaveLength(1)
     expect(output).toEqual(
         [
             {
@@ -55,6 +57,17 @@ describe("Testando getLikesDislikesFromPostsByUserId", () => {
             }
         ]
     );
+  });
+
+  test("deve retornar array vazio de likes e/ou dislikes em posts do usuário com o id igual ao do input", async () => {
+    const input = GetLikesDislikesFromPostsByUserIdSchema.parse({
+        id: "id-mock",
+        token: "token-mock",
+    });
+
+    const output = await userBusiness.getLikesDislikesFromPostsByUserId(input)
+    expect(output).toHaveLength(0)
+    expect(output).toEqual([]);
   });
 
   test("deve disparar erro de DTO para o id", async () => {
@@ -136,23 +149,6 @@ describe("Testando getLikesDislikesFromPostsByUserId", () => {
       if (error instanceof ForbiddenError) {
         expect(error.message).toBe("Somente o próprio usuário ou um ADMIN podem ter acesso às suas informações. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.");
         expect(error.statusCode).toBe(403);
-      }
-    }
-  });
-
-  test("deve disparar erro de likes e/ou dislikes não encontrados em posts do usuário igual ao id do input", async () => {
-    expect.assertions(2);
-    try {
-      const input = GetLikesDislikesFromPostsByUserIdSchema.parse({
-        id: "id-mock",
-        token: "token-mock",
-    });
-
-    const output = await userBusiness.getLikesDislikesFromPostsByUserId(input)
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        expect(error.message).toBe("Likes e/ou dislikes não encontrados.");
-        expect(error.statusCode).toBe(404);
       }
     }
   });

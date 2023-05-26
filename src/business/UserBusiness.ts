@@ -208,22 +208,25 @@ export class UserBusiness {
 
     const likesOrDislikesOnPostsExistsDB: LikeDislikePostDB[] = await this.userDatabase.getLikesDislikesFromPostsByUserId(id)
 
+    let output:LikeDislikePostModel[]
+
     if (!likesOrDislikesOnPostsExistsDB.length){
-      throw new NotFoundError("Likes e/ou dislikes não encontrados.")
-    }
+        output = []
+    } else {
+
+      const likesOrDislikesOnPosts:LikeDislikePostModel[] = likesOrDislikesOnPostsExistsDB.map((likesOrDislikesOnPost) => {
+
+        const likeOrDislike = new LikeOrDislikePost(
+          likesOrDislikesOnPost.user_id,
+          likesOrDislikesOnPost.post_id,
+          likesOrDislikesOnPost.like === 1 ? true : false
+        )
   
-    const likesOrDislikesOnPosts:LikeDislikePostModel[] = likesOrDislikesOnPostsExistsDB.map((likesOrDislikesOnPost) => {
+        return likeOrDislike.toBusinessModel()
+      })
 
-      const likeOrDislike = new LikeOrDislikePost(
-        likesOrDislikesOnPost.user_id,
-        likesOrDislikesOnPost.post_id,
-        likesOrDislikesOnPost.like === 1 ? true : false
-      )
-
-      return likeOrDislike.toBusinessModel()
-    })
-
-    const output:GetLikesDislikesFromPostsByUserIdOutputDTO = likesOrDislikesOnPosts
+      output = likesOrDislikesOnPosts
+    }
 
     return output as GetLikesDislikesFromPostsByUserIdOutputDTO
 
@@ -259,23 +262,27 @@ export class UserBusiness {
 
     const likesOrDislikesOnCommentsExistsDB: LikeDislikeCommentDB[] = await this.userDatabase.getLikesDislikesFromCommentsOnPostIdByUserId(id, postId)
 
+    let output:LikeDislikeCommentModel[]
+
     if (!likesOrDislikesOnCommentsExistsDB.length){
-      throw new NotFoundError("Likes e/ou dislikes não encontrados.")
-    }
+      output = []
+    } else {
+
+      const likesOrDislikesOnComments:LikeDislikeCommentModel[] = likesOrDislikesOnCommentsExistsDB.map((likesOrDislikesOnComment) => {
+
+        const likeOrDislike = new LikeOrDislikeComment(
+          likesOrDislikesOnComment.user_id,
+          likesOrDislikesOnComment.post_id,
+          likesOrDislikesOnComment.comment_id,
+          likesOrDislikesOnComment.like === 1 ? true : false
+        )
   
-    const likesOrDislikesOnComments:LikeDislikeCommentModel[] = likesOrDislikesOnCommentsExistsDB.map((likesOrDislikesOnComment) => {
+        return likeOrDislike.toBusinessModel()
 
-      const likeOrDislike = new LikeOrDislikeComment(
-        likesOrDislikesOnComment.user_id,
-        likesOrDislikesOnComment.post_id,
-        likesOrDislikesOnComment.comment_id,
-        likesOrDislikesOnComment.like === 1 ? true : false
-      )
+      })
 
-      return likeOrDislike.toBusinessModel()
-    })
-
-    const output:GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO = likesOrDislikesOnComments
+      output = likesOrDislikesOnComments
+    }
 
     return output as GetLikesDislikesFromCommentsOnPostIdByUserIdOutputDTO
 
