@@ -76,6 +76,19 @@ describe("Testando getLikesDislikesFromCommentsOnPostIdByUserId", () => {
     );
   });
 
+  test("deve retornar um array vazio de likes e/ou dislikes em comentários do post 'p001' pelo usuário user_normal", async () => {
+    const input = GetLikesDislikesFromCommentsOnPostIdByUserIdSchema.parse({
+        id: "id-mock-normal",
+        postId: "p001",
+        token: "token-mock-normal",
+    });
+
+    const output = await userBusiness.getLikesDislikesFromCommentsOnPostIdByUserId(input)
+
+    expect(output).toHaveLength(0)
+    expect(output).toEqual([]);
+  });
+
   test("deve disparar erro de DTO para o id", async () => {
     expect.assertions(1);
     try {
@@ -195,24 +208,6 @@ describe("Testando getLikesDislikesFromCommentsOnPostIdByUserId", () => {
       if (error instanceof ForbiddenError) {
         expect(error.message).toBe("Somente o próprio usuário ou um ADMIN podem ter acesso às suas informações. Caso não tenha acesso a sua conta, entre em contato com nosso suporte.");
         expect(error.statusCode).toBe(403);
-      }
-    }
-  });
-
-  test("deve disparar erro de likes e/ou dislikes não encontrados em comentários do usuário igual ao id do input", async () => {
-    expect.assertions(2);
-    try {
-      const input = GetLikesDislikesFromCommentsOnPostIdByUserIdSchema.parse({
-        id: "id-mock-normal",
-        postId: "p001",
-        token: "token-mock-normal",
-    });
-
-    const output = await userBusiness.getLikesDislikesFromCommentsOnPostIdByUserId(input)
-    } catch (error) {
-      if (error instanceof NotFoundError) {
-        expect(error.message).toBe("Likes e/ou dislikes não encontrados.");
-        expect(error.statusCode).toBe(404);
       }
     }
   });
