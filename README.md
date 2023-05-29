@@ -1,10 +1,10 @@
 # Labeddit - Backend
 
-![diagram labeddit](./src/assets/diagram-tables-database.PNG)
-
 ## Introdução
 
 Labeddit - Backend é uma API RESTful de uma rede social onde é possível fazer requisições de criação, leitura, atualização e exclusão de usuários, posts e comentários seguindo o sistema CRUD com autenticação em jwt token.Também é possível interagir com os posts e comentários existentes, havendo a possibilidade de dar like e dislike. Rotas protegidas, seguindo o padrão de Arquitetura em Camadas e Programação Orientada a Objetos (POO). Implementada a um banco de dados SQLite.
+
+![diagram labeddit](./src/assets/diagram-tables-database.PNG)
 
 Dividido em 2 repositórios (labeddit-backend e labeddit-frontend), onde o usuário tem acesso a rede social Labeddit.
 
